@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUMADESTINO | La experiencia que mereces</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        themeBg: 'var(--bg-color)',
+                        themeText: 'var(--text-color)',
+                        themeAccent: 'var(--accent-color)',
+                        themeWhite: 'var(--white)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Sistema de Temas Dinámicos */
+        :root[data-theme="light"] {
+            --bg-color: #F5F9F0;
+            --text-color: #18536d;
+            --accent-color: #d1f581;
+            --white: #ffffff;
+        }
+        :root[data-theme="dark"] {
+            --bg-color: #18536d;
+            --text-color: #F5F9F0;
+            --accent-color: #d1f581;
+            --white: #ffffff;
+        }
+        :root[data-theme="lime"] {
+            --bg-color: #d1f581;
+            --text-color: #18536d;
+            --accent-color: #F5F9F0;
+            --white: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Utilidad para el Dropdown */
+        .group:hover .dropdown-menu { display: block; }
+        
+        /* Utilidades para el Acordeón FAQ */
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+    </style>
+</head>
+<body class="antialiased relative">
+
+    <header class="flex justify-between items-center py-4 px-8 border-b border-opacity-20 border-themeText sticky top-0 bg-themeBg z-40 shadow-sm">
+        <div class="flex items-center gap-3">
+            <img src="https://raw.githubusercontent.com/adsmarketingpro/sumadestino/refs/heads/main/logosumadestino.png" class="w-10 h-10 object-contain">
+            <span class="text-2xl font-bold tracking-tight">SUMADESTINO</span>
+        </div>
+
+        <div class="hidden md:flex items-center gap-2">
+            <button onclick="setTheme('light')" class="w-5 h-5 rounded-full bg-[#F5F9F0] border-2 border-[#18536d] shadow-sm hover:scale-110 transition"></button>
+            <button onclick="setTheme('dark')" class="w-5 h-5 rounded-full bg-[#18536d] border-2 border-[#d1f581] shadow-sm hover:scale-110 transition"></button>
+            <button onclick="setTheme('lime')" class="w-5 h-5 rounded-full bg-[#d1f581] border-2 border-[#18536d] shadow-sm hover:scale-110 transition"></button>
+        </div>
+
+        <nav class="hidden md:flex items-center gap-8 font-medium">
+            <div class="relative group py-2">
+                <button class="flex items-center gap-1 hover:text-themeAccent transition">
+                    Comunidad
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="dropdown-menu absolute hidden pt-2 top-full left-0 w-48 z-50">
+                    <ul class="bg-themeWhite text-[#18536d] shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                        <li><a href="#" class="block px-4 py-3 hover:bg-gray-50 transition">Destinos</a></li>
+                        <li><a href="#" class="block px-4 py-3 hover:bg-gray-50 transition">¿Cómo reservar?</a></li>
+                        <li><a href="#" class="block px-4 py-3 hover:bg-gray-50 transition">Nuestra visión</a></li>
+                    </ul>
+                </div>
+            </div>
+            <a href="#" class="hover:text-themeAccent transition">¿Quiénes somos?</a>
+            <a href="#" class="hover:text-themeAccent transition">Contacto</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="text-center pt-24 pb-16 px-4">
+            <h1 class="text-6xl md:text-8xl font-extrabold mb-4 uppercase tracking-tighter">Sumadestino</h1>
+            <p class="text-xl md:text-3xl font-light italic opacity-90 mb-12">"La experiencia que mereces"</p>
+        </section>
+
+        <section class="flex justify-center pb-24">
+            <button class="flex items-center gap-3 bg-themeText text-themeBg px-8 py-4 rounded-full text-lg font-bold hover:bg-themeAccent hover:text-[#18536d] transition-all transform hover:-translate-y-1 shadow-xl">
+                <span>Empezar</span>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                </svg>
+            </button>
+        </section>
+
+        <section class="py-16 px-6 md:px-20 bg-themeText/5">
+            <h2 class="text-3xl font-bold text-center mb-10">¿Qué dicen nuestros viajeros?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <article class="bg-themeWhite text-[#18536d] p-6 rounded-2xl shadow-md border border-gray-100">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gray-300"></div>
+                            <div>
+                                <h3 class="font-bold text-sm">Tania Di Paolo</h3>
+                                <p class="text-xs text-gray-500">hace 5 meses</p>
+                            </div>
+                        </div>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" class="w-5 h-5">
+                    </div>
+                    <div class="flex text-yellow-400 mb-3">★★★★★</div>
+                    <p class="text-sm">Excelente, son muy amables y en todo momento están disponibles para ayudar. Fuimos en un grupo de 9 personas a Perú...</p>
+                </article>
+                <article class="bg-themeWhite text-[#18536d] p-6 rounded-2xl shadow-md border border-gray-100">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gray-300"></div>
+                            <div>
+                                <h3 class="font-bold text-sm">Micaela Martin Vilar</h3>
+                                <p class="text-xs text-gray-500">hace 8 meses</p>
+                            </div>
+                        </div>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" class="w-5 h-5">
+                    </div>
+                    <div class="flex text-yellow-400 mb-3">★★★★★</div>
+                    <p class="text-sm">Excelente Cande! Muy atenta y paciente. Super recomendable para armar tus vacaciones soñadas.</p>
+                </article>
+                <article class="bg-themeWhite text-[#18536d] p-6 rounded-2xl shadow-md border border-gray-100">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gray-300"></div>
+                            <div>
+                                <h3 class="font-bold text-sm">Francis Garay</h3>
+                                <p class="text-xs text-gray-500">hace 8 meses</p>
+                            </div>
+                        </div>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" class="w-5 h-5">
+                    </div>
+                    <div class="flex text-yellow-400 mb-3">★★★★★</div>
+                    <p class="text-sm">Un espectáculo! Nos ayudó desde el minuto 0 a organizar nuestro viaje, resolvió todas nuestras dudas...</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="py-16 px-6 md:px-20">
+            <h2 class="text-3xl font-bold mb-10 text-center">Viajá con nosotros en las redes</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="relative group aspect-[3/4] bg-gray-200 rounded-xl overflow-hidden cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a" alt="Grecia" class="object-cover w-full h-full group-hover:scale-110 transition duration-500">
+                    <div class="absolute inset-0 bg-black/30 flex flex-col justify-end p-4 text-white">
+                        <p class="font-bold">GRECIA</p>
+                        <p class="text-xs">#enfamilia</p>
+                    </div>
+                </div>
+                <div class="relative group aspect-[3/4] bg-gray-200 rounded-xl overflow-hidden cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377" alt="Ecuador" class="object-cover w-full h-full group-hover:scale-110 transition duration-500">
+                    <div class="absolute inset-0 bg-black/30 flex flex-col justify-end p-4 text-white">
+                        <p class="font-bold">ECUADOR</p>
+                        <p class="text-xs">#conamigos</p>
+                    </div>
+                </div>
+                <div class="relative group aspect-[3/4] bg-gray-200 rounded-xl overflow-hidden cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1539020140153-e479b8c22e70" alt="Marruecos" class="object-cover w-full h-full group-hover:scale-110 transition duration-500">
+                    <div class="absolute inset-0 bg-black/30 flex flex-col justify-end p-4 text-white">
+                        <p class="font-bold">MARRUECOS</p>
+                        <p class="text-xs">#enfamilia</p>
+                    </div>
+                </div>
+                <div class="relative group aspect-[3/4] bg-gray-200 rounded-xl overflow-hidden cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1483729558449-99ef09a8c325" alt="Brasil" class="object-cover w-full h-full group-hover:scale-110 transition duration-500">
+                    <div class="absolute inset-0 bg-black/30 flex flex-col justify-end p-4 text-white">
+                        <p class="font-bold">BRASIL</p>
+                        <p class="text-xs">#enfamilia</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-16 px-6 bg-themeText text-themeBg flex flex-col items-center">
+            <h2 class="text-xl font-light mb-8">Nuestros Partners Estratégicos</h2>
+            <img src="LOGO-DESTINO-BLANCO-1024x253.png" alt="Destino Córdoba Logo" class="max-w-[200px] md:max-w-[300px] h-auto opacity-80 hover:opacity-100 transition">
+        </section>
+
+        <section class="py-20 px-6 md:px-32 max-w-5xl mx-auto">
+            <h2 class="text-4xl font-extrabold mb-10 border-b border-themeText pb-4">Un viaje bien <br> acompañado</h2>
+            
+            <div class="space-y-4">
+                <details class="group border-b border-themeText/20 pb-4 cursor-pointer">
+                    <summary class="flex justify-between items-center font-bold text-lg">
+                        ¿Cómo arman los itinerarios a medida?
+                        <span class="transition group-open:rotate-180">
+                            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><polyline points="6 9 12 15 18 9"/></svg>
+                        </span>
+                    </summary>
+                    <p class="text-themeText/80 mt-4 leading-relaxed">
+                        Nos reunimos con vos para entender tus gustos, presupuesto y estilo de viaje. Con esa información, nuestros expertos diseñan una propuesta única, gestionando vuelos, alojamientos y excursiones exclusivas.
+                    </p>
+                </details>
+
+                <details class="group border-b border-themeText/20 pb-4 cursor-pointer">
+                    <summary class="flex justify-between items-center font-bold text-lg">
+                        ¿Tienen asistencia durante el viaje?
+                        <span class="transition group-open:rotate-180">
+                            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><polyline points="6 9 12 15 18 9"/></svg>
+                        </span>
+                    </summary>
+                    <p class="text-themeText/80 mt-4 leading-relaxed">
+                        ¡Totalmente! Contamos con un canal de WhatsApp disponible 24/7 para resolver cualquier imprevisto, cambio de vuelos o recomendación gastronómica mientras estás en tu destino.
+                    </p>
+                </details>
+
+                <details class="group border-b border-themeText/20 pb-4 cursor-pointer">
+                    <summary class="flex justify-between items-center font-bold text-lg">
+                        ¿Qué métodos de pago y financiación ofrecen?
+                        <span class="transition group-open:rotate-180">
+                            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><polyline points="6 9 12 15 18 9"/></svg>
+                        </span>
+                    </summary>
+                    <p class="text-themeText/80 mt-4 leading-relaxed">
+                        Aceptamos transferencias, tarjetas de crédito y débito. Dependiendo del destino, ofrecemos planes de cuotas fijas y asesoramiento cambiario para que aproveches al máximo tu presupuesto.
+                    </p>
+                </details>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-[#18536d] text-white py-10 text-center">
+        <div class="flex justify-center items-center gap-3 mb-6">
+            <img src="1777485244922.png" alt="Icono Sumadestino Verde" class="w-8 h-8 object-contain">
+            <span class="text-xl font-bold tracking-tight">SUMADESTINO</span>
+        </div>
+        <p class="opacity-70 text-sm">© 2026 Sumadestino. Todos los derechos reservados.</p>
+    </footer>
+
+    <div id="leadPopup" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white text-[#18536d] max-w-2xl w-full mx-4 rounded-xl shadow-2xl relative overflow-hidden flex flex-col md:flex-row">
+            <button onclick="closePopup()" class="absolute top-3 right-3 text-gray-500 hover:text-black z-10">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            
+            <div class="p-8 md:p-10 w-full">
+                <h3 class="text-2xl font-extrabold mb-3">Descargá nuestra guía exclusiva de viajero</h3>
+                <p class="text-sm text-gray-600 mb-6">¿Qué encontrarás? Consejos para armar la valija perfecta, tips para ahorrar en tu destino, testimonios de expertos y checklist de documentación.</p>
+                
+                <label class="flex items-start gap-3 mb-6 cursor-pointer">
+                    <input type="checkbox" class="mt-1 w-4 h-4 text-[#18536d] rounded focus:ring-[#18536d]">
+                    <span class="text-xs text-gray-500">Acepto recibir comunicaciones de Sumadestino vía e-mail, notificaciones sobre mis planes de viaje y ofertas.</span>
+                </label>
+
+                <form onsubmit="event.preventDefault(); closePopup();" class="flex flex-col md:flex-row gap-3">
+                    <input type="email" placeholder="E-mail" required class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#18536d]">
+                    <button type="submit" class="bg-[#18536d] text-white px-6 py-3 rounded-lg font-bold hover:bg-[#d1f581] hover:text-[#18536d] transition-colors">
+                        Descargar la guía
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lógica del Selector de Temas usando variables CSS nativas
+        function setTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
+        }
+
+        // Lógica del Pop-up (Aparece a los 4 segundos)
+        const popup = document.getElementById('leadPopup');
+        
+        setTimeout(() => {
+            popup.classList.remove('hidden');
+            // Pequeño delay para la transición de opacidad
+            setTimeout(() => popup.classList.remove('opacity-0'), 50);
+        }, 4000);
+
+        function closePopup() {
+            popup.classList.add('opacity-0');
+            setTimeout(() => popup.classList.add('hidden'), 300);
+        }
+    </script>
+</body>
+</html>
