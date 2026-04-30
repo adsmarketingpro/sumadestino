@@ -220,16 +220,15 @@
     animation: fadeUp 0.8s 0.2s forwards;
   }
 
-  .hero-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(4rem, 12vw, 10rem);
-    font-weight: 900;
-    line-height: 0.9;
-    color: var(--hero-text);
-    letter-spacing: -0.02em;
+  .hero-logo-img {
+    width: 90%; /* Se adapta a celulares */
+    max-width: 800px; /* Tope máximo en PC para que no quede gigante */
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 20px;
     opacity: 0;
-    animation: fadeUp 0.9s 0.35s forwards;
-    transition: color 0.4s;
+    animation: fadeUp 0.9s 0.35s forwards; 
+  }
   }
 
   .hero-sub {
