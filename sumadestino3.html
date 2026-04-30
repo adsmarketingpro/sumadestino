@@ -84,16 +84,17 @@
 
   /* ── HEADER ── */
   header {
-    background: var(--nav-bg);
+    background: transparent; /* 1. Hacemos el fondo invisible */
     padding: 0 40px;
     height: 72px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    position: sticky;
+    position: absolute; /* 2. Lo sacamos del flujo normal para que flote sobre la imagen */
+    width: 100%; /* 3. Obligamos a que ocupe todo el ancho */
     top: 0;
+    left: 0;
     z-index: 100;
-    box-shadow: 0 2px 20px rgba(0,0,0,0.15);
     transition: background 0.4s;
   }
 
