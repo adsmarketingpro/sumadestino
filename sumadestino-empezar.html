@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Armá tu viaje — SumaDestino</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'Codec Pro';
+    src: url('./fonts/CodecPro-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Codec Pro';
+    src: url('./fonts/CodecPro-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Codec Pro';
+    src: url('./fonts/CodecPro-ExtraLight.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+  }
+
+  :root {
+    --lime: #d1f581;
+    --teal: #18536d;
+    --cosmos: #050f07;
+    --white: #ffffff;
+    --cream: #F5F9F0;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Codec Pro', 'DM Sans', sans-serif;
+    background: var(--cosmos);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── FONDO NEBULOSA ── */
+  .bg-nebula {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 40%, rgba(24,83,109,0.35) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 60% at 85% 65%, rgba(209,245,129,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 40% at 50% 100%, rgba(5,15,7,0.9) 0%, transparent 70%),
+      #050f07;
+    pointer-events: none;
+  }
+
+  /* Estrellas */
+  .stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--dur) ease-in-out infinite alternate;
+    opacity: var(--op);
+  }
+  @keyframes twinkle {
+    from { opacity: var(--op); }
+    to   { opacity: calc(var(--op) * 0.3); }
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .logo img { height: 36px; filter: brightness(10); }
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+  .back-btn:hover { color: var(--lime); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    z-index: 200;
+    background: rgba(255,255,255,0.08);
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--lime);
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 12px rgba(209,245,129,0.6);
+  }
+
+  /* ── STEP DOTS ── */
+  .step-dots {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+  }
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .dot.active {
+    background: var(--lime);
+    width: 24px;
+    border-radius: 3px;
+    box-shadow: 0 0 8px rgba(209,245,129,0.5);
+  }
+  .dot.done { background: rgba(209,245,129,0.4); }
+
+  /* ── MAIN ── */
+  main {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 24px 100px;
+  }
+
+  /* ── STEP CONTAINER ── */
+  .step {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 680px;
+    width: 100%;
+    animation: stepIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .step.active { display: flex; }
+  .step.exit {
+    animation: stepOut 0.3s ease forwards;
+    pointer-events: none;
+  }
+
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes stepOut {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(-20px); }
+  }
+
+  /* ── STEP LABEL ── */
+  .step-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--lime);
+    font-weight: 400;
+    margin-bottom: 20px;
+    opacity: 0.8;
+  }
+
+  /* ── STEP TITLE ── */
+  .step-title {
+    font-family: 'Codec Pro', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+  .step-title em {
+    font-style: normal;
+    color: var(--lime);
+  }
+
+  .step-subtitle {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.5);
+    font-weight: 300;
+    margin-bottom: 48px;
+    line-height: 1.5;
+  }
+
+  /* ── OPTIONS GRID ── */
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 40px;
+  }
+  .options-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .options-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+  .option-card {
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 20px 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.03);
+    user-select: none;
+  }
+  .option-card:hover {
+    border-color: rgba(209,245,129,0.4);
+    background: rgba(209,245,129,0.05);
+    transform: translateY(-2px);
+  }
+  .option-card.selected {
+    border-color: var(--lime);
+    background: rgba(209,245,129,0.1);
+    box-shadow: 0 0 20px rgba(209,245,129,0.12);
+  }
+  .option-card .icon { font-size: 1.8rem; }
+  .option-card .label {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.3;
+  }
+  .option-card.selected .label { color: var(--lime); }
+
+  /* ── INPUT FIELDS ── */
+  .field-group {
+    width: 100%;
+    margin-bottom: 16px;
+    text-align: left;
+  }
+  .field-group label {
+    display: block;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 10px;
+    font-weight: 400;
+  }
+  .field-input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 16px 20px;
+    color: var(--white);
+    font-family: 'Codec Pro', sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    -webkit-appearance: none;
+  }
+  .field-input::placeholder { color: rgba(255,255,255,0.2); }
+  .field-input:focus {
+    border-color: rgba(209,245,129,0.5);
+    background: rgba(209,245,129,0.04);
+  }
+
+  .fields-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+  }
+
+  /* ── COUNTER ── */
+  .counter-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 18px 24px;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.03);
+    margin-bottom: 12px;
+  }
+  .counter-info { text-align: left; }
+  .counter-info .counter-label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--white);
+  }
+  .counter-info .counter-sub {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.35);
+    margin-top: 2px;
+  }
+  .counter-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .counter-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    background: none;
+    color: var(--white);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .counter-btn:hover {
+    border-color: var(--lime);
+    color: var(--lime);
+  }
+  .counter-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    min-width: 24px;
+    text-align: center;
+    color: var(--lime);
+  }
+
+  /* ── BUDGET SLIDER ── */
+  .budget-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 40px;
+  }
+  .budget-card {
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 24px 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background: rgba(255,255,255,0.03);
+    text-align: center;
+  }
+  .budget-card:hover {
+    border-color: rgba(209,245,129,0.3);
+    transform: translateY(-2px);
+  }
+  .budget-card.selected {
+    border-color: var(--lime);
+    background: rgba(209,245,129,0.08);
+  }
+  .budget-card .budget-range {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+  .budget-card.selected .budget-range { color: var(--lime); }
+  .budget-card .budget-desc {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.4);
+  }
+  .budget-card .budget-icon { font-size: 1.5rem; margin-bottom: 8px; }
+
+  /* ── NEXT BUTTON ── */
+  .next-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--lime);
+    color: var(--teal);
+    border: none;
+    padding: 18px 40px;
+    border-radius: 50px;
+    font-family: 'Codec Pro', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 24px rgba(209,245,129,0.2);
+    margin-top: 8px;
+  }
+  .next-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(209,245,129,0.35);
+  }
+  .next-btn:active { transform: scale(0.98); }
+  .next-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .next-btn .arrow { font-size: 1.1rem; }
+
+  /* Submit button */
+  .submit-btn {
+    background: var(--teal);
+    color: var(--lime);
+    border: 2px solid var(--lime);
+    box-shadow: 0 4px 24px rgba(24,83,109,0.4);
+  }
+  .submit-btn:hover { box-shadow: 0 8px 32px rgba(24,83,109,0.6); }
+
+  /* ── SUCCESS SCREEN ── */
+  .success-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: stepIn 0.6s ease forwards;
+  }
+  .success-screen.active { display: flex; }
+  .success-icon {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: rgba(209,245,129,0.12);
+    border: 2px solid var(--lime);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 32px;
+    animation: popIn 0.5s 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .success-title {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 16px;
+  }
+  .success-sub {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.5);
+    max-width: 420px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+  }
+  .wa-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #25D366;
+    color: white;
+    text-decoration: none;
+    padding: 16px 36px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(37,211,102,0.3);
+  }
+  .wa-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(37,211,102,0.4); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .options-grid { grid-template-columns: repeat(2, 1fr); }
+    .options-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+    .budget-options { grid-template-columns: 1fr; }
+    .fields-row { grid-template-columns: 1fr; }
+    header { padding: 16px 20px; }
+    .step-dots { bottom: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Fondo -->
+<div class="bg-nebula"></div>
+<div class="stars" id="stars"></div>
+
+<!-- Progress bar -->
+<div class="progress-wrap">
+  <div class="progress-bar" id="progressBar" style="width: 20%"></div>
+</div>
+
+<!-- Header -->
+<header>
+  <a href="javascript:history.back()" class="logo">
+    <img src="https://raw.githubusercontent.com/adsmarketingpro/sumadestino/refs/heads/main/logosumadestino.png" alt="SumaDestino">
+  </a>
+  <a href="javascript:history.back()" class="back-btn">
+    ← Volver
+  </a>
+</header>
+
+<!-- Main -->
+<main>
+
+  <!-- PASO 1: Destino -->
+  <div class="step active" id="step1">
+    <div class="step-label">Paso 1 de 5</div>
+    <h1 class="step-title">¿A dónde querés<br><em>escaparte?</em></h1>
+    <p class="step-subtitle">Elegí el continente o escribí tu destino soñado.</p>
+
+    <div class="options-grid cols-2" style="margin-bottom: 20px;">
+      <div class="option-card" data-value="Europa" onclick="selectOption(this, 'continente')">
+        <span class="icon">🏰</span>
+        <span class="label">Europa</span>
+      </div>
+      <div class="option-card" data-value="América del Sur" onclick="selectOption(this, 'continente')">
+        <span class="icon">🌎</span>
+        <span class="label">América del Sur</span>
+      </div>
+      <div class="option-card" data-value="Asia" onclick="selectOption(this, 'continente')">
+        <span class="icon">🏯</span>
+        <span class="label">Asia</span>
+      </div>
+      <div class="option-card" data-value="Caribe" onclick="selectOption(this, 'continente')">
+        <span class="icon">🏖️</span>
+        <span class="label">Caribe</span>
+      </div>
+      <div class="option-card" data-value="África" onclick="selectOption(this, 'continente')">
+        <span class="icon">🦁</span>
+        <span class="label">África</span>
+      </div>
+      <div class="option-card" data-value="América del Norte" onclick="selectOption(this, 'continente')">
+        <span class="icon">🗽</span>
+        <span class="label">América del Norte</span>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>O escribí el destino específico</label>
+      <input type="text" class="field-input" id="destino-texto" placeholder="Ej: Japón, Marruecos, Patagonia..." oninput="formData.destino_texto = this.value">
+    </div>
+
+    <button class="next-btn" onclick="goToStep(2)">
+      Siguiente <span class="arrow">→</span>
+    </button>
+  </div>
+
+  <!-- PASO 2: Fechas y origen -->
+  <div class="step" id="step2">
+    <div class="step-label">Paso 2 de 5</div>
+    <h1 class="step-title">¿Cuándo y<br><em>desde dónde?</em></h1>
+    <p class="step-subtitle">Fechas aproximadas, no hace falta que sean exactas.</p>
+
+    <div class="fields-row" style="margin-bottom: 16px;">
+      <div class="field-group" style="margin-bottom: 0;">
+        <label>Fecha de salida estimada</label>
+        <input type="text" class="field-input" id="fecha-salida" placeholder="Ej: Julio 2025" oninput="formData.fecha_salida = this.value">
+      </div>
+      <div class="field-group" style="margin-bottom: 0;">
+        <label>Duración aproximada</label>
+        <input type="text" class="field-input" id="duracion" placeholder="Ej: 10 días" oninput="formData.duracion = this.value">
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>Ciudad de salida</label>
+      <input type="text" class="field-input" id="ciudad-salida" placeholder="Ej: Córdoba, Buenos Aires..." oninput="formData.ciudad_salida = this.value">
+    </div>
+
+    <div class="field-group">
+      <label>¿Tenés flexibilidad en las fechas?</label>
+      <div class="options-grid cols-2" style="margin-bottom: 0; margin-top: 8px;">
+        <div class="option-card" data-value="Sí, soy flexible" onclick="selectOption(this, 'flexibilidad')" style="padding: 14px;">
+          <span class="label">✅ Sí, soy flexible</span>
+        </div>
+        <div class="option-card" data-value="No, son fechas fijas" onclick="selectOption(this, 'flexibilidad')" style="padding: 14px;">
+          <span class="label">📌 No, son fechas fijas</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 12px; margin-top: 8px;">
+      <button class="next-btn" style="background: rgba(255,255,255,0.08); color: white; box-shadow: none;" onclick="goToStep(1)">
+        ← Atrás
+      </button>
+      <button class="next-btn" onclick="goToStep(3)">
+        Siguiente <span class="arrow">→</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PASO 3: Viajeros y tipo de viaje -->
+  <div class="step" id="step3">
+    <div class="step-label">Paso 3 de 5</div>
+    <h1 class="step-title">¿Con quién<br><em>viajás?</em></h1>
+    <p class="step-subtitle">Contanos cómo es el grupo y qué tipo de experiencia buscás.</p>
+
+    <div style="width: 100%; margin-bottom: 24px;">
+      <div class="counter-group">
+        <div class="counter-info">
+          <div class="counter-label">Adultos</div>
+          <div class="counter-sub">18 años o más</div>
+        </div>
+        <div class="counter-controls">
+          <button class="counter-btn" onclick="updateCounter('adultos', -1)">−</button>
+          <span class="counter-value" id="adultos-val">2</span>
+          <button class="counter-btn" onclick="updateCounter('adultos', 1)">+</button>
+        </div>
+      </div>
+      <div class="counter-group">
+        <div class="counter-info">
+          <div class="counter-label">Menores</div>
+          <div class="counter-sub">Menos de 18 años</div>
+        </div>
+        <div class="counter-controls">
+          <button class="counter-btn" onclick="updateCounter('menores', -1)">−</button>
+          <span class="counter-value" id="menores-val">0</span>
+          <button class="counter-btn" onclick="updateCounter('menores', 1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>Tipo de viaje (podés elegir más de uno)</label>
+      <div class="options-grid" style="margin-bottom: 0; margin-top: 8px;">
+        <div class="option-card" data-value="Playa / Relax" onclick="toggleMulti(this, 'tipo_viaje')">
+          <span class="icon">🏖️</span>
+          <span class="label">Playa / Relax</span>
+        </div>
+        <div class="option-card" data-value="Aventura" onclick="toggleMulti(this, 'tipo_viaje')">
+          <span class="icon">🧗</span>
+          <span class="label">Aventura</span>
+        </div>
+        <div class="option-card" data-value="Cultural" onclick="toggleMulti(this, 'tipo_viaje')">
+          <span class="icon">🏛️</span>
+          <span class="label">Cultural</span>
+        </div>
+        <div class="option-card" data-value="Luna de miel" onclick="toggleMulti(this, 'tipo_viaje')">
+          <span class="icon">💍</span>
+          <span class="label">Luna de miel</span>
+        </div>
+        <div class="option-card" data-value="Familiar" onclick="toggleMulti(this, 'tipo_viaje')">
+          <span class="icon">👨‍👩‍👧</span>
+          <span class="label">Familiar</span>
+        </div>
+        <div class="option-card" data-value="All Inclusive" onclick="toggleMulti(this, 'tipo_viaje')">
+          <span class="icon">🍹</span>
+          <span class="label">All Inclusive</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 12px; margin-top: 24px;">
+      <button class="next-btn" style="background: rgba(255,255,255,0.08); color: white; box-shadow: none;" onclick="goToStep(2)">
+        ← Atrás
+      </button>
+      <button class="next-btn" onclick="goToStep(4)">
+        Siguiente <span class="arrow">→</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PASO 4: Presupuesto y experiencia -->
+  <div class="step" id="step4">
+    <div class="step-label">Paso 4 de 5</div>
+    <h1 class="step-title">¿Cuál es tu<br><em>presupuesto?</em></h1>
+    <p class="step-subtitle">Por persona, sin contar el vuelo si preferís cotizarlo aparte.</p>
+
+    <div class="budget-options">
+      <div class="budget-card" onclick="selectBudget(this, 'USD 1.500 – 2.000')">
+        <div class="budget-icon">💰</div>
+        <div class="budget-range">USD 1.500 – 2.000</div>
+        <div class="budget-desc">Económico</div>
+      </div>
+      <div class="budget-card" onclick="selectBudget(this, 'USD 2.000 – 3.000')">
+        <div class="budget-icon">💎</div>
+        <div class="budget-range">USD 2.000 – 3.000</div>
+        <div class="budget-desc">Intermedio</div>
+      </div>
+      <div class="budget-card" onclick="selectBudget(this, 'Más de USD 3.000')">
+        <div class="budget-icon">✨</div>
+        <div class="budget-range">+USD 3.000</div>
+        <div class="budget-desc">Premium</div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>¿Qué querés que incluya la cotización?</label>
+      <div class="options-grid cols-2" style="margin-top: 8px; margin-bottom: 0;">
+        <div class="option-card" data-value="Solo alojamiento" onclick="selectOption(this, 'cotizacion')">
+          <span class="icon">🏨</span>
+          <span class="label">Solo alojamiento</span>
+        </div>
+        <div class="option-card" data-value="Vuelos + alojamiento" onclick="selectOption(this, 'cotizacion')">
+          <span class="icon">✈️</span>
+          <span class="label">Vuelos + alojamiento</span>
+        </div>
+        <div class="option-card" data-value="Paquete completo" onclick="selectOption(this, 'cotizacion')">
+          <span class="icon">🎯</span>
+          <span class="label">Paquete completo</span>
+        </div>
+        <div class="option-card" data-value="Crucero" onclick="selectOption(this, 'cotizacion')">
+          <span class="icon">🚢</span>
+          <span class="label">Crucero</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 12px; margin-top: 24px;">
+      <button class="next-btn" style="background: rgba(255,255,255,0.08); color: white; box-shadow: none;" onclick="goToStep(3)">
+        ← Atrás
+      </button>
+      <button class="next-btn" onclick="goToStep(5)">
+        Siguiente <span class="arrow">→</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PASO 5: Datos de contacto -->
+  <div class="step" id="step5">
+    <div class="step-label">Paso 5 de 5 — ¡Último!</div>
+    <h1 class="step-title">¿A quién le<br><em>mandamos la propuesta?</em></h1>
+    <p class="step-subtitle">Te la enviamos por WhatsApp en menos de 24 horas.</p>
+
+    <div class="fields-row" style="margin-bottom: 16px;">
+      <div class="field-group" style="margin-bottom: 0;">
+        <label>Nombre</label>
+        <input type="text" class="field-input" id="nombre" placeholder="Tu nombre" oninput="formData.nombre = this.value">
+      </div>
+      <div class="field-group" style="margin-bottom: 0;">
+        <label>Apellido</label>
+        <input type="text" class="field-input" id="apellido" placeholder="Tu apellido" oninput="formData.apellido = this.value">
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>Celular (con código de área)</label>
+      <input type="tel" class="field-input" id="celular" placeholder="Ej: 351 123 4567" oninput="formData.celular = this.value">
+    </div>
+
+    <div class="field-group">
+      <label>Email</label>
+      <input type="email" class="field-input" id="email" placeholder="tu@email.com" oninput="formData.email = this.value">
+    </div>
+
+    <div class="field-group">
+      <label>¿Algo más que quieras contarnos?</label>
+      <textarea class="field-input" id="detalles" rows="3" placeholder="Preferencias, alergias, ocasión especial..." style="resize: none; line-height: 1.5;" oninput="formData.detalles = this.value"></textarea>
+    </div>
+
+    <div style="display: flex; gap: 12px; margin-top: 8px;">
+      <button class="next-btn" style="background: rgba(255,255,255,0.08); color: white; box-shadow: none;" onclick="goToStep(4)">
+        ← Atrás
+      </button>
+      <button class="next-btn submit-btn" onclick="submitForm()">
+        ✈ Quiero mi propuesta
+      </button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">✈️</div>
+    <h2 class="success-title">¡Todo listo,<br><span style="color: var(--lime);">tu viaje empieza acá!</span></h2>
+    <p class="success-sub">Recibimos tu consulta. Un asesor de SumaDestino te va a contactar en menos de 24 horas con una propuesta armada especialmente para vos.</p>
+    <a href="#" id="waLink" class="wa-btn" target="_blank">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Hablar con un asesor ahora
+    </a>
+    <a href="index.html" style="margin-top: 20px; color: rgba(255,255,255,0.35); font-size: 0.85rem; text-decoration: none;">← Volver al inicio</a>
+  </div>
+
+</main>
+
+<!-- Step dots -->
+<div class="step-dots">
+  <div class="dot active" onclick="goToStep(1)"></div>
+  <div class="dot" onclick="goToStep(2)"></div>
+  <div class="dot" onclick="goToStep(3)"></div>
+  <div class="dot" onclick="goToStep(4)"></div>
+  <div class="dot" onclick="goToStep(5)"></div>
+</div>
+
+<script>
+  // ── Estrellas ──
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2 + 0.5;
+    s.style.cssText = `
+      width: ${size}px; height: ${size}px;
+      top: ${Math.random() * 100}%;
+      left: ${Math.random() * 100}%;
+      --op: ${Math.random() * 0.5 + 0.1};
+      --dur: ${Math.random() * 3 + 2}s;
+    `;
+    starsEl.appendChild(s);
+  }
+
+  // ── Form data ──
+  let formData = {
+    continente: '',
+    destino_texto: '',
+    fecha_salida: '',
+    duracion: '',
+    ciudad_salida: '',
+    flexibilidad: '',
+    adultos: 2,
+    menores: 0,
+    tipo_viaje: [],
+    presupuesto: '',
+    cotizacion: '',
+    nombre: '',
+    apellido: '',
+    celular: '',
+    email: '',
+    detalles: ''
+  };
+
+  let currentStep = 1;
+  const totalSteps = 5;
+
+  // ── Navigation ──
+  function goToStep(n) {
+    const current = document.getElementById('step' + currentStep);
+    const next = document.getElementById('step' + n);
+    if (!next) return;
+
+    current.classList.add('exit');
+    setTimeout(() => {
+      current.classList.remove('active', 'exit');
+      next.classList.add('active');
+      currentStep = n;
+      updateProgress();
+      updateDots();
+    }, 280);
+  }
+
+  function updateProgress() {
+    const pct = (currentStep / totalSteps) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+  }
+
+  function updateDots() {
+    const dots = document.querySelectorAll('.dot');
+    dots.forEach((d, i) => {
+      d.classList.remove('active', 'done');
+      if (i + 1 === currentStep) d.classList.add('active');
+      else if (i + 1 < currentStep) d.classList.add('done');
+    });
+  }
+
+  // ── Single select ──
+  function selectOption(el, key) {
+    const parent = el.closest('.options-grid') || el.parentElement;
+    parent.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    formData[key] = el.dataset.value;
+  }
+
+  // ── Multi select ──
+  function toggleMulti(el, key) {
+    el.classList.toggle('selected');
+    const val = el.dataset.value;
+    if (el.classList.contains('selected')) {
+      if (!formData[key].includes(val)) formData[key].push(val);
+    } else {
+      formData[key] = formData[key].filter(v => v !== val);
+    }
+  }
+
+  // ── Budget ──
+  function selectBudget(el, val) {
+    document.querySelectorAll('.budget-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    formData.presupuesto = val;
+  }
+
+  // ── Counter ──
+  function updateCounter(key, delta) {
+    formData[key] = Math.max(0, formData[key] + delta);
+    if (key === 'adultos') formData.adultos = Math.max(1, formData.adultos);
+    document.getElementById(key + '-val').textContent = formData[key];
+  }
+
+  // ── Submit ──
+  function submitForm() {
+    const { nombre, celular } = formData;
+    if (!nombre || !celular) {
+      alert('Por favor completá tu nombre y celular para continuar.');
+      return;
+    }
+
+    const continente = formData.continente || formData.destino_texto || 'No especificado';
+    const tipos = formData.tipo_viaje.length ? formData.tipo_viaje.join(', ') : 'No especificado';
+
+    const msg = `¡Hola! Completo el formulario de SumaDestino y quiero recibir una propuesta de viaje.
+
+📍 *Destino:* ${continente}
+📅 *Fechas:* ${formData.fecha_salida || 'No especificado'} — ${formData.duracion || ''}
+🛫 *Salida desde:* ${formData.ciudad_salida || 'No especificado'}
+🗓️ *Flexibilidad:* ${formData.flexibilidad || 'No especificado'}
+
+👥 *Viajeros:* ${formData.adultos} adulto(s), ${formData.menores} menor(es)
+🎒 *Tipo de viaje:* ${tipos}
+💰 *Presupuesto por persona:* ${formData.presupuesto || 'No especificado'}
+📦 *Cotización:* ${formData.cotizacion || 'No especificado'}
+
+👤 *Nombre:* ${formData.nombre} ${formData.apellido}
+📱 *Celular:* ${formData.celular}
+📧 *Email:* ${formData.email}
+${formData.detalles ? `\n💬 *Detalles:* ${formData.detalles}` : ''}`;
+
+    const waUrl = `https://wa.me/5493515117532?text=${encodeURIComponent(msg)}`;
+    document.getElementById('waLink').href = waUrl;
+
+    // Show success
+    document.getElementById('step5').classList.remove('active');
+    document.querySelector('.step-dots').style.display = 'none';
+    document.getElementById('progressBar').style.width = '100%';
+    document.getElementById('successScreen').classList.add('active');
+  }
+</script>
+</body>
+</html>
