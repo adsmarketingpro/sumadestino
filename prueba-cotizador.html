@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Armá tu viaje — SumaDestino</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  @font-face { font-family:'Codec Pro'; src:url('./fonts/CodecPro-Regular.ttf') format('truetype'); font-weight:400; }
+  @font-face { font-family:'Codec Pro'; src:url('./fonts/CodecPro-Bold.ttf') format('truetype'); font-weight:700; }
+  @font-face { font-family:'Codec Pro'; src:url('./fonts/CodecPro-ExtraLight.ttf') format('truetype'); font-weight:200; }
+
+  :root { --lime:#d1f581; --teal:#18536d; --cosmos:#050f07; --white:#ffffff; }
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Codec Pro','DM Sans',sans-serif; background:var(--cosmos); color:var(--white); min-height:100vh; overflow-x:hidden; }
+
+  .bg-nebula {
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background: radial-gradient(ellipse 70% 50% at 15% 40%, rgba(24,83,109,0.35) 0%, transparent 65%),
+                radial-gradient(ellipse 50% 60% at 85% 65%, rgba(209,245,129,0.06) 0%, transparent 60%), #050f07;
+  }
+  .stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+  .star { position:absolute; background:white; border-radius:50%; animation:twinkle var(--dur) ease-in-out infinite alternate; opacity:var(--op); }
+  @keyframes twinkle { from{opacity:var(--op)} to{opacity:calc(var(--op)*0.3)} }
+
+  .progress-wrap { position:fixed; top:0; left:0; right:0; height:3px; z-index:200; background:rgba(255,255,255,0.08); }
+  .progress-bar { height:100%; background:var(--lime); transition:width .5s cubic-bezier(.4,0,.2,1); box-shadow:0 0 12px rgba(209,245,129,.6); }
+
+  /* HEADER TRANSPARENTE */
+  header {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    padding:20px 40px; display:flex; align-items:center; justify-content:space-between;
+    background: transparent;
+    border-bottom: none;
+  }
+  .logo img { height:36px; filter:brightness(10); }
+  .back-btn { display:flex; align-items:center; gap:8px; color:rgba(255,255,255,.5); text-decoration:none; font-size:.85rem; letter-spacing:.05em; transition:color .2s; }
+  .back-btn:hover { color:var(--lime); }
+
+  .continent-badge { display:none; align-items:center; gap:8px; background:rgba(209,245,129,.1); border:1px solid rgba(209,245,129,.3); border-radius:50px; padding:6px 16px; font-size:.8rem; color:var(--lime); letter-spacing:.08em; margin-bottom:14px; }
+
+  main { position:relative; z-index:10; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:100px 24px 100px; }
+
+  .step { display:none; flex-direction:column; align-items:center; text-align:center; max-width:740px; width:100%; animation:stepIn .5s cubic-bezier(.22,1,.36,1) forwards; }
+  .step.active { display:flex; }
+  .step.exit { animation:stepOut .28s ease forwards; pointer-events:none; }
+  @keyframes stepIn { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes stepOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-18px)} }
+
+  .step-label { font-size:.72rem; letter-spacing:.25em; text-transform:uppercase; color:var(--lime); font-weight:400; margin-bottom:14px; opacity:.8; }
+  .step-title { font-family:'Codec Pro',sans-serif; font-size:clamp(1.8rem,4.5vw,2.9rem); font-weight:700; line-height:1.1; color:var(--white); margin-bottom:10px; }
+  .step-title em { font-style:normal; color:var(--lime); }
+  .step-subtitle { font-size:.92rem; color:rgba(255,255,255,.4); font-weight:300; margin-bottom:30px; line-height:1.5; }
+
+  /* CONTINENT CARDS CON IMAGEN */
+  .continent-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:11px; width:100%; margin-bottom:16px; }
+  .continent-card {
+    position:relative; border:1.5px solid rgba(255,255,255,.1); border-radius:14px;
+    overflow:hidden; cursor:pointer; transition:all .25s; aspect-ratio:3/2;
+    background:#0a1a0f;
+  }
+  .continent-card img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.55; transition:opacity .3s; }
+  .continent-card:hover img { opacity:.75; }
+  .continent-card.selected img { opacity:.8; }
+  .continent-card::after {
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(to top, rgba(5,15,7,.85) 0%, rgba(5,15,7,.2) 60%, transparent 100%);
+  }
+  .continent-card:hover { border-color:rgba(209,245,129,.5); transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  .continent-card.selected { border-color:var(--lime); box-shadow:0 0 0 2px var(--lime), 0 8px 24px rgba(209,245,129,.15); }
+  .continent-card-label {
+    position:absolute; bottom:0; left:0; right:0; z-index:2;
+    padding:10px 12px; text-align:center;
+  }
+  .continent-card-label .c-name { font-size:.88rem; font-weight:700; color:var(--white); display:block; }
+  .continent-card.selected .c-name { color:var(--lime); }
+  .continent-check {
+    position:absolute; top:8px; right:8px; z-index:3;
+    width:20px; height:20px; border-radius:50%;
+    background:var(--lime); color:var(--teal);
+    font-size:.7rem; font-weight:900;
+    display:none; align-items:center; justify-content:center;
+  }
+  .continent-card.selected .continent-check { display:flex; }
+
+  /* DESTINATION CARDS */
+  .dest-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:11px; width:100%; margin-bottom:16px; }
+  .dest-card { position:relative; border:1.5px solid rgba(255,255,255,.08); border-radius:14px; padding:18px 12px; cursor:pointer; transition:all .25s; background:rgba(255,255,255,.03); display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .dest-card:hover { border-color:rgba(209,245,129,.35); transform:translateY(-3px); background:rgba(209,245,129,.04); }
+  .dest-card.selected { border-color:var(--lime); background:rgba(209,245,129,.09); box-shadow:0 0 20px rgba(209,245,129,.1); }
+  .dest-card .dest-icon { font-size:1.7rem; }
+  .dest-card .dest-name { font-size:.88rem; font-weight:600; color:rgba(255,255,255,.85); line-height:1.2; }
+  .dest-card.selected .dest-name { color:var(--lime); }
+  .dest-card .dest-tag { font-size:.68rem; color:rgba(255,255,255,.28); }
+  .tour-badge { position:absolute; top:7px; right:7px; background:var(--lime); color:var(--teal); font-size:.58rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:2px 6px; border-radius:3px; }
+
+  /* OPTION CARDS */
+  .options-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:11px; width:100%; margin-bottom:18px; }
+  .options-grid.cols-2 { grid-template-columns:repeat(2,1fr); }
+  .option-card { border:1.5px solid rgba(255,255,255,.1); border-radius:13px; padding:16px 12px; cursor:pointer; transition:all .25s; display:flex; flex-direction:column; align-items:center; gap:7px; background:rgba(255,255,255,.03); user-select:none; }
+  .option-card:hover { border-color:rgba(209,245,129,.35); background:rgba(209,245,129,.04); transform:translateY(-2px); }
+  .option-card.selected { border-color:var(--lime); background:rgba(209,245,129,.09); }
+  .option-card .icon { font-size:1.5rem; }
+  .option-card .label { font-size:.82rem; font-weight:500; color:rgba(255,255,255,.8); line-height:1.3; }
+  .option-card.selected .label { color:var(--lime); }
+
+  /* FIELDS */
+  .field-group { width:100%; margin-bottom:13px; text-align:left; }
+  .field-group label { display:block; font-size:.73rem; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.38); margin-bottom:7px; }
+  .field-input { width:100%; background:rgba(255,255,255,.04); border:1.5px solid rgba(255,255,255,.1); border-radius:11px; padding:13px 17px; color:var(--white); font-family:'Codec Pro',sans-serif; font-size:.93rem; outline:none; transition:border-color .2s,background .2s; -webkit-appearance:none; }
+  .field-input::placeholder { color:rgba(255,255,255,.18); }
+  .field-input:focus { border-color:rgba(209,245,129,.45); background:rgba(209,245,129,.04); }
+  .field-input.error { border-color:rgba(255,80,80,.6); background:rgba(255,80,80,.04); }
+  .fields-row { display:grid; grid-template-columns:1fr 1fr; gap:11px; width:100%; }
+
+  /* ERROR MSG */
+  .error-msg { color:rgba(255,120,120,.9); font-size:.78rem; margin-top:-8px; margin-bottom:10px; text-align:left; width:100%; display:none; }
+  .error-msg.show { display:block; }
+
+  /* COUNTER */
+  .counter-group { display:flex; align-items:center; justify-content:space-between; width:100%; padding:15px 20px; border:1.5px solid rgba(255,255,255,.08); border-radius:13px; background:rgba(255,255,255,.03); margin-bottom:10px; }
+  .counter-info .counter-label { font-size:.9rem; font-weight:500; }
+  .counter-info .counter-sub { font-size:.73rem; color:rgba(255,255,255,.28); margin-top:2px; }
+  .counter-controls { display:flex; align-items:center; gap:14px; }
+  .counter-btn { width:33px; height:33px; border-radius:50%; border:1.5px solid rgba(255,255,255,.15); background:none; color:var(--white); font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; font-family:inherit; }
+  .counter-btn:hover { border-color:var(--lime); color:var(--lime); }
+  .counter-value { font-size:1.2rem; font-weight:700; min-width:20px; text-align:center; color:var(--lime); }
+
+  /* BUDGET */
+  .budget-options { display:grid; grid-template-columns:repeat(3,1fr); gap:11px; width:100%; margin-bottom:24px; }
+  .budget-card { border:1.5px solid rgba(255,255,255,.1); border-radius:13px; padding:20px 12px; cursor:pointer; transition:all .25s; background:rgba(255,255,255,.03); text-align:center; }
+  .budget-card:hover { border-color:rgba(209,245,129,.3); transform:translateY(-2px); }
+  .budget-card.selected { border-color:var(--lime); background:rgba(209,245,129,.08); }
+  .budget-icon { font-size:1.3rem; margin-bottom:5px; }
+  .budget-range { font-size:.88rem; font-weight:700; color:var(--white); margin-bottom:3px; }
+  .budget-card.selected .budget-range { color:var(--lime); }
+  .budget-desc { font-size:.7rem; color:rgba(255,255,255,.32); }
+
+  /* BUTTONS */
+  .btn-row { display:flex; gap:11px; margin-top:6px; flex-wrap:wrap; justify-content:center; }
+  .next-btn { display:flex; align-items:center; gap:10px; background:var(--lime); color:var(--teal); border:none; padding:15px 34px; border-radius:50px; font-family:'Codec Pro',sans-serif; font-size:.9rem; font-weight:700; cursor:pointer; transition:transform .2s,box-shadow .2s; letter-spacing:.04em; text-transform:uppercase; box-shadow:0 4px 22px rgba(209,245,129,.18); }
+  .next-btn:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(209,245,129,.32); }
+  .next-btn:active { transform:scale(.98); }
+  .btn-back { background:rgba(255,255,255,.07); color:rgba(255,255,255,.55); box-shadow:none; }
+  .btn-back:hover { background:rgba(255,255,255,.11); color:white; box-shadow:none; }
+  .btn-submit { background:var(--teal); color:var(--lime); border:2px solid var(--lime); }
+
+  /* DOTS */
+  .step-dots { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); display:flex; gap:9px; z-index:100; }
+  .dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.2); transition:all .3s; }
+  .dot.active { background:var(--lime); width:22px; border-radius:3px; box-shadow:0 0 8px rgba(209,245,129,.4); }
+  .dot.done { background:rgba(209,245,129,.32); }
+
+  /* SUCCESS */
+  .success-screen { display:none; flex-direction:column; align-items:center; text-align:center; animation:stepIn .6s ease forwards; }
+  .success-screen.active { display:flex; }
+  .success-icon { width:78px; height:78px; border-radius:50%; background:rgba(209,245,129,.1); border:2px solid var(--lime); display:flex; align-items:center; justify-content:center; font-size:2rem; margin-bottom:26px; animation:popIn .5s .3s cubic-bezier(.34,1.56,.64,1) both; }
+  @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+  .success-title { font-size:clamp(1.8rem,4vw,2.5rem); font-weight:700; margin-bottom:13px; }
+  .success-sub { font-size:.92rem; color:rgba(255,255,255,.42); max-width:390px; line-height:1.6; margin-bottom:32px; }
+  .wa-btn { display:flex; align-items:center; gap:12px; background:#25D366; color:white; text-decoration:none; padding:15px 32px; border-radius:50px; font-weight:700; transition:transform .2s,box-shadow .2s; box-shadow:0 4px 18px rgba(37,211,102,.28); }
+  .wa-btn:hover { transform:translateY(-2px); box-shadow:0 8px 26px rgba(37,211,102,.38); }
+
+  @media(max-width:700px) {
+    .continent-grid { grid-template-columns:repeat(2,1fr); }
+    .dest-grid { grid-template-columns:repeat(2,1fr); }
+    .options-grid { grid-template-columns:repeat(2,1fr); }
+    .budget-options { grid-template-columns:1fr; }
+    .fields-row { grid-template-columns:1fr; }
+    header { padding:16px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-nebula"></div>
+<div class="stars" id="stars"></div>
+
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:20%"></div></div>
+
+<header>
+  <a href="javascript:history.back()" class="logo">
+    <img src="https://raw.githubusercontent.com/adsmarketingpro/sumadestino/refs/heads/main/logosumadestino.png" alt="SumaDestino">
+  </a>
+  <a href="javascript:history.back()" class="back-btn">← Volver</a>
+</header>
+
+<main>
+
+  <!-- PASO 1 -->
+  <div class="step active" id="step1">
+    <div class="step-label">Paso 1 de 5</div>
+    <div class="continent-badge" id="continentBadge"></div>
+    <h1 class="step-title" id="step1Title">¿A dónde querés<br><em>escaparte?</em></h1>
+    <p class="step-subtitle" id="step1Subtitle">Elegí el continente o escribí tu destino soñado.</p>
+    <div id="step1Content" style="width:100%;"></div>
+    <div class="error-msg" id="err1">⚠ Seleccioná un destino o escribí uno para continuar.</div>
+    <button class="next-btn" onclick="validateAndGo(1)">Siguiente →</button>
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="step" id="step2">
+    <div class="step-label">Paso 2 de 5</div>
+    <h1 class="step-title">¿Cuándo y<br><em>desde dónde?</em></h1>
+    <p class="step-subtitle">Completá todos los campos para continuar.</p>
+    <div class="fields-row" style="margin-bottom:13px;">
+      <div class="field-group" style="margin-bottom:0;">
+        <label>Fecha de salida estimada *</label>
+        <input type="text" class="field-input" id="f-fecha" placeholder="Ej: Julio 2025" oninput="fd.fecha_salida=this.value;clearErr(this)">
+      </div>
+      <div class="field-group" style="margin-bottom:0;">
+        <label>Duración aproximada *</label>
+        <input type="text" class="field-input" id="f-duracion" placeholder="Ej: 10 días" oninput="fd.duracion=this.value;clearErr(this)">
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Ciudad de salida *</label>
+      <input type="text" class="field-input" id="f-ciudad" placeholder="Ej: Córdoba, Buenos Aires..." oninput="fd.ciudad_salida=this.value;clearErr(this)">
+    </div>
+    <div class="field-group">
+      <label>¿Tenés flexibilidad en las fechas? *</label>
+      <div class="options-grid cols-2" style="margin-bottom:0;margin-top:7px;" id="flex-grid">
+        <div class="option-card" data-value="Sí, flexible" onclick="selectOption(this,'flexibilidad');document.getElementById('err2').classList.remove('show')" style="padding:13px;">
+          <span class="label">✅ Sí, soy flexible</span>
+        </div>
+        <div class="option-card" data-value="Fechas fijas" onclick="selectOption(this,'flexibilidad');document.getElementById('err2').classList.remove('show')" style="padding:13px;">
+          <span class="label">📌 No, son fijas</span>
+        </div>
+      </div>
+    </div>
+    <div class="error-msg" id="err2">⚠ Por favor completá todos los campos.</div>
+    <div class="btn-row">
+      <button class="next-btn btn-back" onclick="goToStep(1)">← Atrás</button>
+      <button class="next-btn" onclick="validateAndGo(2)">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- PASO 3 -->
+  <div class="step" id="step3">
+    <div class="step-label">Paso 3 de 5</div>
+    <h1 class="step-title">¿Con quién<br><em>viajás?</em></h1>
+    <p class="step-subtitle">Seleccioná al menos un tipo de viaje para continuar.</p>
+    <div style="width:100%;margin-bottom:18px;">
+      <div class="counter-group">
+        <div class="counter-info"><div class="counter-label">Adultos</div><div class="counter-sub">18 años o más</div></div>
+        <div class="counter-controls">
+          <button class="counter-btn" onclick="updateCounter('adultos',-1)">−</button>
+          <span class="counter-value" id="adultos-val">2</span>
+          <button class="counter-btn" onclick="updateCounter('adultos',1)">+</button>
+        </div>
+      </div>
+      <div class="counter-group">
+        <div class="counter-info"><div class="counter-label">Menores</div><div class="counter-sub">Menos de 18 años</div></div>
+        <div class="counter-controls">
+          <button class="counter-btn" onclick="updateCounter('menores',-1)">−</button>
+          <span class="counter-value" id="menores-val">0</span>
+          <button class="counter-btn" onclick="updateCounter('menores',1)">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Tipo de viaje * (podés elegir más de uno)</label>
+      <div class="options-grid" style="margin-top:7px;margin-bottom:0;">
+        <div class="option-card" data-value="Playa / Relax" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">🏖️</span><span class="label">Playa / Relax</span></div>
+        <div class="option-card" data-value="Aventura" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">🧗</span><span class="label">Aventura</span></div>
+        <div class="option-card" data-value="Cultural" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">🏛️</span><span class="label">Cultural</span></div>
+        <div class="option-card" data-value="Luna de miel" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">💍</span><span class="label">Luna de miel</span></div>
+        <div class="option-card" data-value="Familiar" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">👨‍👩‍👧</span><span class="label">Familiar</span></div>
+        <div class="option-card" data-value="All Inclusive" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">🍹</span><span class="label">All Inclusive</span></div>
+      </div>
+    </div>
+    <div class="error-msg" id="err3">⚠ Seleccioná al menos un tipo de viaje.</div>
+    <div class="btn-row">
+      <button class="next-btn btn-back" onclick="goToStep(2)">← Atrás</button>
+      <button class="next-btn" onclick="validateAndGo(3)">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- PASO 4 -->
+  <div class="step" id="step4">
+    <div class="step-label">Paso 4 de 5</div>
+    <h1 class="step-title">¿Cuál es tu<br><em>presupuesto?</em></h1>
+    <p class="step-subtitle">Por persona, sin contar el vuelo si preferís cotizarlo aparte.</p>
+    <div class="budget-options" id="budget-grid">
+      <div class="budget-card" onclick="selectBudget(this,'USD 1.500 – 2.000');document.getElementById('err4').classList.remove('show')"><div class="budget-icon">💰</div><div class="budget-range">USD 1.500 – 2.000</div><div class="budget-desc">Económico</div></div>
+      <div class="budget-card" onclick="selectBudget(this,'USD 2.000 – 3.000');document.getElementById('err4').classList.remove('show')"><div class="budget-icon">💎</div><div class="budget-range">USD 2.000 – 3.000</div><div class="budget-desc">Intermedio</div></div>
+      <div class="budget-card" onclick="selectBudget(this,'Más de USD 3.000');document.getElementById('err4').classList.remove('show')"><div class="budget-icon">✨</div><div class="budget-range">+USD 3.000</div><div class="budget-desc">Premium</div></div>
+    </div>
+    <div class="error-msg" id="err4">⚠ Seleccioná un rango de presupuesto para continuar.</div>
+    <div class="field-group">
+      <label>¿Qué querés que incluya la cotización?</label>
+      <div class="options-grid cols-2" style="margin-top:7px;margin-bottom:0;">
+        <div class="option-card" data-value="Solo alojamiento" onclick="selectOption(this,'cotizacion')"><span class="icon">🏨</span><span class="label">Solo alojamiento</span></div>
+        <div class="option-card" data-value="Vuelos + alojamiento" onclick="selectOption(this,'cotizacion')"><span class="icon">✈️</span><span class="label">Vuelos + alojamiento</span></div>
+        <div class="option-card" data-value="Paquete completo" onclick="selectOption(this,'cotizacion')"><span class="icon">🎯</span><span class="label">Paquete completo</span></div>
+        <div class="option-card" data-value="Crucero" onclick="selectOption(this,'cotizacion')"><span class="icon">🚢</span><span class="label">Crucero</span></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="next-btn btn-back" onclick="goToStep(3)">← Atrás</button>
+      <button class="next-btn" onclick="validateAndGo(4)">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- PASO 5 -->
+  <div class="step" id="step5">
+    <div class="step-label">Paso 5 de 5 — ¡Último!</div>
+    <h1 class="step-title">¿A quién le<br><em>mandamos la propuesta?</em></h1>
+    <p class="step-subtitle">Te la enviamos por WhatsApp en menos de 24 horas.</p>
+    <div class="fields-row" style="margin-bottom:13px;">
+      <div class="field-group" style="margin-bottom:0;"><label>Nombre *</label><input type="text" class="field-input" id="f-nombre" placeholder="Tu nombre" oninput="fd.nombre=this.value;clearErr(this)"></div>
+      <div class="field-group" style="margin-bottom:0;"><label>Apellido *</label><input type="text" class="field-input" id="f-apellido" placeholder="Tu apellido" oninput="fd.apellido=this.value;clearErr(this)"></div>
+    </div>
+    <div class="field-group"><label>Celular (con código de área) *</label><input type="tel" class="field-input" id="f-celular" placeholder="Ej: 351 123 4567" oninput="fd.celular=this.value;clearErr(this)"></div>
+    <div class="field-group"><label>Email *</label><input type="email" class="field-input" id="f-email" placeholder="tu@email.com" oninput="fd.email=this.value;clearErr(this)"></div>
+    <div class="field-group"><label>¿Algo más que quieras contarnos?</label><textarea class="field-input" rows="3" placeholder="Preferencias, alergias, ocasión especial..." style="resize:none;line-height:1.5;" oninput="fd.detalles=this.value"></textarea></div>
+    <div class="error-msg" id="err5">⚠ Completá nombre, apellido, celular y email para continuar.</div>
+    <div class="btn-row">
+      <button class="next-btn btn-back" onclick="goToStep(4)">← Atrás</button>
+      <button class="next-btn btn-submit" onclick="validateAndGo(5)">✈ Quiero mi propuesta</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">✈️</div>
+    <h2 class="success-title">¡Todo listo,<br><span style="color:var(--lime);">tu viaje empieza acá!</span></h2>
+    <p class="success-sub">Recibimos tu consulta. Un asesor de SumaDestino te va a contactar en menos de 24 horas con una propuesta armada especialmente para vos.</p>
+    <a href="#" id="waLink" class="wa-btn" target="_blank">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Hablar con un asesor ahora
+    </a>
+    <a href="index.html" style="margin-top:16px;color:rgba(255,255,255,.28);font-size:.8rem;text-decoration:none;">← Volver al inicio</a>
+  </div>
+
+</main>
+
+<div class="step-dots" id="stepDots">
+  <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+</div>
+
+<script>
+// Estrellas
+const starsEl = document.getElementById('stars');
+for(let i=0;i<100;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2+.5;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--op:${Math.random()*.45+.1};--dur:${Math.random()*3+2}s;`;starsEl.appendChild(s);}
+
+// Datos continentes con imágenes
+const CONTINENTS_GENERIC = [
+  { name:'Europa',            img:'https://sumadestino.com/Imagenes/Europa.jpg' },
+  { name:'América del Sur',   img:'https://sumadestino.com/Imagenes/SudAmerica.jpg' },
+  { name:'Asia',              img:'https://sumadestino.com/Imagenes/Asia.jpg' },
+  { name:'Caribe',            img:'https://sumadestino.com/Imagenes/Caribe.png' },
+  { name:'África',            img:'https://sumadestino.com/Imagenes/Africa.png' },
+  { name:'América del Norte', img:'https://sumadestino.com/Imagenes/NorteAmerica.png' },
+  { name:'Oceanía',           img:'https://sumadestino.com/Imagenes/Oceania.png' },
+];
+
+// Datos por continente
+const C = {
+  'Europa': {
+    emoji:'🏰', titulo:'¿A qué rincón de<br><em>Europa</em> querés ir?', sub:'Elegí tu destino o un tour armado.',
+    destinos:[
+      {icon:'🗼',name:'Francia',tag:'París, Niza, Lyon'},
+      {icon:'🍕',name:'Italia',tag:'Roma, Venecia, Amalfi'},
+      {icon:'🥘',name:'España',tag:'Madrid, Barcelona, Sevilla'},
+      {icon:'🏛️',name:'Grecia',tag:'Atenas, Santorini, Mykonos'},
+      {icon:'🐚',name:'Portugal',tag:'Lisboa, Oporto, Algarve'},
+      {icon:'🕌',name:'Turquía',tag:'Estambul, Capadocia'},
+      {icon:'🏔️',name:'Suiza',tag:'Zúrich, Lucerna, Alpes'},
+      {icon:'🌷',name:'Países Bajos',tag:'Ámsterdam, Brujas'},
+      {icon:'✨',name:'Tour por Europa',tag:'Circuito armado',tour:true},
+    ]
+  },
+  'América del Sur': {
+    emoji:'🌎', titulo:'¿Qué destino de<br><em>Sudamérica</em> te llama?', sub:'Elegí el país o dejanos armar el circuito ideal.',
+    destinos:[
+      {icon:'🌊',name:'Brasil',tag:'Río, Salvador, Floripa'},
+      {icon:'🦙',name:'Perú',tag:'Machu Picchu, Lima, Cusco'},
+      {icon:'🌋',name:'Colombia',tag:'Cartagena, Medellín, Bogotá'},
+      {icon:'🏔️',name:'Chile',tag:'Patagonia, Atacama, Santiago'},
+      {icon:'🐆',name:'Bolivia',tag:'Salar de Uyuni, La Paz'},
+      {icon:'🌿',name:'Ecuador',tag:'Galápagos, Quito, Amazonia'},
+      {icon:'🏞️',name:'Patagonia Argentina',tag:'Bariloche, El Calafate'},
+      {icon:'🤝',name:'Uruguay',tag:'Montevideo, Punta del Este'},
+      {icon:'✨',name:'Circuito Sudamérica',tag:'Tour multi-país',tour:true},
+    ]
+  },
+  'Asia': {
+    emoji:'🏯', titulo:'¿Qué destino de<br><em>Asia</em> te fascina?', sub:'Elegí el país o un tour por la región.',
+    destinos:[
+      {icon:'⛩️',name:'Japón',tag:'Tokio, Kioto, Osaka'},
+      {icon:'🐘',name:'Tailandia',tag:'Bangkok, Phuket, Chiang Mai'},
+      {icon:'🏝️',name:'Bali / Indonesia',tag:'Ubud, Seminyak, Lombok'},
+      {icon:'🍜',name:'Vietnam',tag:'Hanói, Ho Chi Minh, Ha Long'},
+      {icon:'🏙️',name:'Emiratos Árabes',tag:'Dubái, Abu Dhabi'},
+      {icon:'🌴',name:'Maldivas',tag:'Atolones, resorts overwater'},
+      {icon:'🐅',name:'India',tag:'Rajastán, Goa, Kerala'},
+      {icon:'🐉',name:'China',tag:'Pekín, Shanghái, Xi\'an'},
+      {icon:'✨',name:'Tour Sudeste Asiático',tag:'Circuito multi-país',tour:true},
+    ]
+  },
+  'África': {
+    emoji:'🦁', titulo:'¿Qué aventura de<br><em>África</em> te espera?', sub:'Elegí el destino o un safari organizado por nosotros.',
+    destinos:[
+      {icon:'🕌',name:'Marruecos',tag:'Marrakech, Fez, Sahara'},
+      {icon:'🏺',name:'Egipto',tag:'El Cairo, Luxor, Hurgada'},
+      {icon:'🦒',name:'Kenia',tag:'Safari Masai Mara, Nairobi'},
+      {icon:'🐘',name:'Tanzania',tag:'Serengeti, Zanzíbar'},
+      {icon:'🌅',name:'Sudáfrica',tag:'Ciudad del Cabo, Safari Kruger'},
+      {icon:'🏖️',name:'Mauricio',tag:'Playas, resorts, snorkel'},
+      {icon:'🐊',name:'Zimbabue / Zambia',tag:'Cataratas Victoria, Safari'},
+      {icon:'✨',name:'Safari Clásico',tag:'Tour armado multi-país',tour:true},
+    ]
+  },
+  'América del Norte': {
+    emoji:'🗽', titulo:'¿A dónde en<br><em>América del Norte?</em>', sub:'Elegí tu destino o un circuito diseñado por nosotros.',
+    destinos:[
+      {icon:'🗽',name:'Nueva York',tag:'Manhattan, Brooklyn, Queens'},
+      {icon:'🌴',name:'Miami / Florida',tag:'Miami Beach, Orlando, Keys'},
+      {icon:'🌁',name:'California',tag:'Los Ángeles, San Francisco'},
+      {icon:'🎰',name:'Las Vegas',tag:'Strip, Grand Canyon'},
+      {icon:'🍁',name:'Canadá',tag:'Toronto, Vancouver, Rockies'},
+      {icon:'🏖️',name:'México Caribe',tag:'Cancún, Tulum, Playa del Carmen'},
+      {icon:'🌮',name:'Ciudad de México',tag:'CDMX, Oaxaca, Yucatán'},
+      {icon:'✨',name:'Costa a Costa USA',tag:'Circuito armado',tour:true},
+    ]
+  },
+  'América Central': {
+    emoji:'🌊', titulo:'¿Qué destino del<br><em>Caribe y Centroamérica?</em>', sub:'Playas, cultura y aventura.',
+    destinos:[
+      {icon:'🏝️',name:'Rep. Dominicana',tag:'Punta Cana, Santo Domingo'},
+      {icon:'🎶',name:'Cuba',tag:'La Habana, Trinidad, Varadero'},
+      {icon:'🌺',name:'Jamaica',tag:'Montego Bay, Negril'},
+      {icon:'🦜',name:'Costa Rica',tag:'Arenal, Guanacaste'},
+      {icon:'🌿',name:'Panamá',tag:'Ciudad de Panamá, Bocas del Toro'},
+      {icon:'🐠',name:'Aruba / Curaçao',tag:'Playas, snorkel, relax'},
+      {icon:'🍹',name:'Bahamas',tag:'Nassau, Exumas'},
+      {icon:'✨',name:'Crucero por el Caribe',tag:'Tour en barco',tour:true},
+    ]
+  },
+  'Caribe': {
+    emoji:'🏖️', titulo:'¿Qué destino del<br><em>Caribe</em> te llama?', sub:'Sol, playa y aventura tropical.',
+    destinos:[
+      {icon:'🏝️',name:'Rep. Dominicana',tag:'Punta Cana, Santo Domingo'},
+      {icon:'🎶',name:'Cuba',tag:'La Habana, Trinidad, Varadero'},
+      {icon:'🌺',name:'Jamaica',tag:'Montego Bay, Negril'},
+      {icon:'🐠',name:'Aruba / Curaçao',tag:'Playas, snorkel, relax'},
+      {icon:'🍹',name:'Bahamas',tag:'Nassau, Exumas'},
+      {icon:'🦜',name:'Costa Rica',tag:'Arenal, Guanacaste'},
+      {icon:'🌿',name:'Panamá',tag:'Ciudad de Panamá, Bocas del Toro'},
+      {icon:'✨',name:'Crucero por el Caribe',tag:'Tour en barco',tour:true},
+    ]
+  },
+  'Oceanía': {
+    emoji:'🦘', titulo:'¿Qué destino de<br><em>Oceanía</em> te llama?', sub:'Aventura y naturaleza al otro lado del mundo.',
+    destinos:[
+      {icon:'🦘',name:'Australia',tag:'Sídney, Melbourne, Gran Barrera'},
+      {icon:'🌿',name:'Nueva Zelanda',tag:'Auckland, Fiordland, Rotorua'},
+      {icon:'🌺',name:'Polinesia Francesa',tag:'Bora Bora, Moorea, Tahití'},
+      {icon:'🏄',name:'Fiji',tag:'Islas Mamanuca, resorts, surf'},
+      {icon:'✨',name:'Australia + Nueva Zelanda',tag:'Circuito combinado',tour:true},
+    ]
+  }
+};
+
+// Form data
+const fd = {
+  continente:'', destino:'',
+  fecha_salida:'', duracion:'', ciudad_salida:'', flexibilidad:'',
+  adultos:2, menores:0, tipo_viaje:[],
+  presupuesto:'', cotizacion:'',
+  nombre:'', apellido:'', celular:'', email:'', detalles:''
+};
+
+const continenteParam = new URLSearchParams(window.location.search).get('continente') || '';
+
+function buildStep1() {
+  const data = C[continenteParam];
+  const badge = document.getElementById('continentBadge');
+  const title = document.getElementById('step1Title');
+  const sub = document.getElementById('step1Subtitle');
+  const content = document.getElementById('step1Content');
+
+  if (data) {
+    fd.continente = continenteParam;
+    badge.style.display = 'inline-flex';
+    badge.innerHTML = `${data.emoji} ${continenteParam}`;
+    title.innerHTML = data.titulo;
+    sub.textContent = data.sub;
+    let html = '<div class="dest-grid">';
+    data.destinos.forEach(d => {
+      html += `<div class="dest-card" data-value="${d.name}" onclick="selectDest(this)">
+        ${d.tour ? '<span class="tour-badge">TOUR</span>' : ''}
+        <span class="dest-icon">${d.icon}</span>
+        <span class="dest-name">${d.name}</span>
+        <span class="dest-tag">${d.tag}</span>
+      </div>`;
+    });
+    html += '</div>';
+    html += `<div class="field-group" style="margin-top:4px;">
+      <label>O escribí algo más específico</label>
+      <input type="text" class="field-input" id="f-destino-extra" placeholder="Ej: zona rural, playa tranquila..." oninput="fd.destino_extra=this.value">
+    </div>`;
+    content.innerHTML = html;
+  } else {
+    // Genérico con imágenes
+    let html = '<div class="continent-grid">';
+    CONTINENTS_GENERIC.forEach(c => {
+      html += `<div class="continent-card" data-value="${c.name}" onclick="selectContinent(this)">
+        <img src="${c.img}" alt="${c.name}" loading="lazy">
+        <div class="continent-card-label">
+          <span class="c-name">${c.name}</span>
+        </div>
+        <span class="continent-check">✓</span>
+      </div>`;
+    });
+    html += '</div>';
+    html += `<div class="field-group" style="margin-top:4px;">
+      <label>O escribí el destino específico</label>
+      <input type="text" class="field-input" id="f-destino-texto" placeholder="Ej: Japón, Marruecos, Patagonia..." oninput="fd.destino=this.value;document.getElementById('err1').classList.remove('show')">
+    </div>`;
+    content.innerHTML = html;
+  }
+}
+buildStep1();
+
+function selectContinent(el) {
+  document.querySelectorAll('.continent-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  fd.destino = el.dataset.value;
+  document.getElementById('err1').classList.remove('show');
+}
+
+// Navigation
+let currentStep = 1;
+function goToStep(n) {
+  const cur = document.getElementById('step'+currentStep);
+  const nxt = document.getElementById('step'+n);
+  if (!nxt) return;
+  cur.classList.add('exit');
+  setTimeout(() => {
+    cur.classList.remove('active','exit');
+    nxt.classList.add('active');
+    currentStep = n;
+    document.getElementById('progressBar').style.width = (n/5*100)+'%';
+    document.querySelectorAll('.dot').forEach((d,i)=>{
+      d.classList.remove('active','done');
+      if(i+1===n) d.classList.add('active');
+      else if(i+1<n) d.classList.add('done');
+    });
+    window.scrollTo({top:0, behavior:'smooth'});
+  }, 260);
+}
+
+// Validación por paso
+function validateAndGo(step) {
+  if (step === 1) {
+    const hasSelected = fd.destino || fd.continente;
+    const textInput = document.getElementById('f-destino-texto') || document.getElementById('f-destino-extra');
+    const hasText = textInput && textInput.value.trim();
+    if (!hasSelected && !hasText) {
+      document.getElementById('err1').classList.add('show');
+      return;
+    }
+    if (hasText && !hasSelected) fd.destino = textInput.value.trim();
+    goToStep(2);
+  }
+  else if (step === 2) {
+    let ok = true;
+    ['f-fecha','f-duracion','f-ciudad'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) { el.classList.add('error'); ok = false; }
+    });
+    if (!fd.flexibilidad) ok = false;
+    if (!ok) { document.getElementById('err2').classList.add('show'); return; }
+    goToStep(3);
+  }
+  else if (step === 3) {
+    if (!fd.tipo_viaje.length) {
+      document.getElementById('err3').classList.add('show');
+      return;
+    }
+    goToStep(4);
+  }
+  else if (step === 4) {
+    if (!fd.presupuesto) {
+      document.getElementById('err4').classList.add('show');
+      return;
+    }
+    goToStep(5);
+  }
+  else if (step === 5) {
+    let ok = true;
+    [['f-nombre','nombre'],['f-apellido','apellido'],['f-celular','celular'],['f-email','email']].forEach(([id,key]) => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) { el.classList.add('error'); ok = false; }
+    });
+    if (!ok) { document.getElementById('err5').classList.add('show'); return; }
+    submitForm();
+  }
+}
+
+function clearErr(el) {
+  el.classList.remove('error');
+}
+
+function selectDest(el) {
+  el.closest('.dest-grid').querySelectorAll('.dest-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  fd.destino = el.dataset.value;
+  document.getElementById('err1').classList.remove('show');
+}
+function selectOption(el, key) {
+  const p = el.closest('.options-grid')||el.parentElement;
+  p.querySelectorAll('.option-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  fd[key] = el.dataset.value;
+}
+function toggleMulti(el, key) {
+  el.classList.toggle('selected');
+  const v = el.dataset.value;
+  if(el.classList.contains('selected')){ if(!fd[key].includes(v)) fd[key].push(v); }
+  else fd[key] = fd[key].filter(x=>x!==v);
+}
+function selectBudget(el, val) {
+  document.querySelectorAll('.budget-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  fd.presupuesto = val;
+}
+function updateCounter(key, delta) {
+  fd[key] = key==='adultos' ? Math.max(1,fd[key]+delta) : Math.max(0,fd[key]+delta);
+  document.getElementById(key+'-val').textContent = fd[key];
+}
+
+function submitForm() {
+  const destino = [fd.continente, fd.destino].filter(Boolean).join(' → ') || 'No especificado';
+  const tipos = fd.tipo_viaje.length ? fd.tipo_viaje.join(', ') : 'No especificado';
+  const msg = `¡Hola! Completé el formulario de SumaDestino y quiero recibir una propuesta de viaje.
+
+📍 *Destino:* ${destino}
+📅 *Fechas:* ${fd.fecha_salida||'No especificado'} — ${fd.duracion||''}
+🛫 *Salida desde:* ${fd.ciudad_salida||'No especificado'}
+🗓️ *Flexibilidad:* ${fd.flexibilidad||'No especificado'}
+👥 *Viajeros:* ${fd.adultos} adulto(s), ${fd.menores} menor(es)
+🎒 *Tipo de viaje:* ${tipos}
+💰 *Presupuesto:* ${fd.presupuesto||'No especificado'}
+📦 *Cotización:* ${fd.cotizacion||'No especificado'}
+
+👤 *Nombre:* ${fd.nombre} ${fd.apellido}
+📱 *Celular:* ${fd.celular}
+📧 *Email:* ${fd.email}${fd.detalles?'\n💬 *Detalles:* '+fd.detalles:''}`;
+
+  document.getElementById('waLink').href = `https://wa.me/5493515117532?text=${encodeURIComponent(msg)}`;
+  document.getElementById('step5').classList.remove('active');
+  document.getElementById('stepDots').style.display = 'none';
+  document.getElementById('progressBar').style.width = '100%';
+  document.getElementById('successScreen').classList.add('active');
+}
+</script>
+</body>
+</html>
