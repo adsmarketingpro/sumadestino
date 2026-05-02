@@ -104,6 +104,40 @@
   .option-card .label { font-size:.82rem; font-weight:500; color:rgba(255,255,255,.8); line-height:1.3; }
   .option-card.selected .label { color:var(--lime); }
 
+  /* TRIP TYPE CARDS CON IMAGEN */
+  .triptype-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:11px; width:100%; margin-bottom:18px; }
+  .triptype-card {
+    position:relative; border:1.5px solid rgba(255,255,255,.1); border-radius:14px;
+    overflow:hidden; cursor:pointer; transition:all .25s; aspect-ratio:4/3;
+    background:#0a1a0f; user-select:none;
+  }
+  .triptype-card img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.5; transition:opacity .3s; }
+  .triptype-card:hover img { opacity:.72; }
+  .triptype-card.selected img { opacity:.78; }
+  .triptype-card::after {
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(to top, rgba(5,15,7,.88) 0%, rgba(5,15,7,.25) 55%, transparent 100%);
+  }
+  .triptype-card:hover { border-color:rgba(209,245,129,.45); transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  .triptype-card.selected {
+    border-color:var(--lime);
+    box-shadow:0 0 0 2px var(--lime), 0 8px 24px rgba(209,245,129,.15);
+  }
+  .triptype-label {
+    position:absolute; bottom:0; left:0; right:0; z-index:2;
+    padding:10px 12px; text-align:center;
+  }
+  .triptype-label .t-name { font-size:.88rem; font-weight:700; color:var(--white); display:block; }
+  .triptype-card.selected .t-name { color:var(--lime); }
+  .triptype-check {
+    position:absolute; top:8px; right:8px; z-index:3;
+    width:20px; height:20px; border-radius:50%;
+    background:var(--lime); color:var(--teal);
+    font-size:.7rem; font-weight:900;
+    display:none; align-items:center; justify-content:center;
+  }
+  .triptype-card.selected .triptype-check { display:flex; }
+
   /* FIELDS */
   .field-group { width:100%; margin-bottom:13px; text-align:left; }
   .field-group label { display:block; font-size:.73rem; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.38); margin-bottom:7px; }
@@ -260,13 +294,37 @@
     </div>
     <div class="field-group">
       <label>Tipo de viaje * (podés elegir más de uno)</label>
-      <div class="options-grid" style="margin-top:7px;margin-bottom:0;">
-        <div class="option-card" data-value="Playa / Relax" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">🏖️</span><span class="label">Playa / Relax</span></div>
-        <div class="option-card" data-value="Aventura" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">🧗</span><span class="label">Aventura</span></div>
-        <div class="option-card" data-value="Cultural" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">🏛️</span><span class="label">Cultural</span></div>
-        <div class="option-card" data-value="Luna de miel" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">💍</span><span class="label">Luna de miel</span></div>
-        <div class="option-card" data-value="Familiar" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">👨‍👩‍👧</span><span class="label">Familiar</span></div>
-        <div class="option-card" data-value="All Inclusive" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">🍹</span><span class="label">All Inclusive</span></div>
+      <div class="triptype-grid" style="margin-top:7px;">
+        <div class="triptype-card" data-value="Playa / Relax" onclick="toggleTripType(this)">
+          <img src="https://sumadestino.com/Imagenes/Tipo%20de%20viaje/Relax.png" alt="Relax" loading="lazy">
+          <div class="triptype-label"><span class="t-name">Playa / Relax</span></div>
+          <span class="triptype-check">✓</span>
+        </div>
+        <div class="triptype-card" data-value="Aventura" onclick="toggleTripType(this)">
+          <img src="https://sumadestino.com/Imagenes/Tipo%20de%20viaje/Aventura.png" alt="Aventura" loading="lazy">
+          <div class="triptype-label"><span class="t-name">Aventura</span></div>
+          <span class="triptype-check">✓</span>
+        </div>
+        <div class="triptype-card" data-value="Cultural" onclick="toggleTripType(this)">
+          <img src="https://sumadestino.com/Imagenes/Tipo%20de%20viaje/Cultura.png" alt="Cultural" loading="lazy">
+          <div class="triptype-label"><span class="t-name">Cultural</span></div>
+          <span class="triptype-check">✓</span>
+        </div>
+        <div class="triptype-card" data-value="Luna de miel" onclick="toggleTripType(this)">
+          <img src="https://sumadestino.com/Imagenes/Tipo%20de%20viaje/Lunademiel.png" alt="Luna de miel" loading="lazy" style="object-position: center 85%;">
+          <div class="triptype-label"><span class="t-name">Luna de miel</span></div>
+          <span class="triptype-check">✓</span>
+        </div>
+        <div class="triptype-card" data-value="Familiar" onclick="toggleTripType(this)">
+          <img src="https://sumadestino.com/Imagenes/Tipo%20de%20viaje/Familiar.png" alt="Familiar" loading="lazy">
+          <div class="triptype-label"><span class="t-name">Familiar</span></div>
+          <span class="triptype-check">✓</span>
+        </div>
+        <div class="triptype-card" data-value="All Inclusive" onclick="toggleTripType(this)">
+          <img src="https://sumadestino.com/Imagenes/Tipo%20de%20viaje/All-Inclusive.png" alt="All Inclusive" loading="lazy">
+          <div class="triptype-label"><span class="t-name">All Inclusive</span></div>
+          <span class="triptype-check">✓</span>
+        </div>
       </div>
     </div>
     <div class="error-msg" id="err3">⚠ Seleccioná al menos un tipo de viaje.</div>
@@ -282,9 +340,9 @@
     <h1 class="step-title">¿Cuál es tu<br><em>presupuesto?</em></h1>
     <p class="step-subtitle">Por persona, sin contar el vuelo si preferís cotizarlo aparte.</p>
     <div class="budget-options" id="budget-grid">
-      <div class="budget-card" onclick="selectBudget(this,'USD 1.500 – 2.000');document.getElementById('err4').classList.remove('show')"><div class="budget-icon">💰</div><div class="budget-range">USD 1.500 – 2.000</div><div class="budget-desc">Económico</div></div>
-      <div class="budget-card" onclick="selectBudget(this,'USD 2.000 – 3.000');document.getElementById('err4').classList.remove('show')"><div class="budget-icon">💎</div><div class="budget-range">USD 2.000 – 3.000</div><div class="budget-desc">Intermedio</div></div>
-      <div class="budget-card" onclick="selectBudget(this,'Más de USD 3.000');document.getElementById('err4').classList.remove('show')"><div class="budget-icon">✨</div><div class="budget-range">+USD 3.000</div><div class="budget-desc">Premium</div></div>
+      <div class="budget-card" onclick="selectBudget(this,'USD 1.500 – 2.000');document.getElementById('err4').classList.remove('show')"><div class="budget-range">USD 1.500 – 2.000</div></div>
+<div class="budget-card" onclick="selectBudget(this,'USD 2.000 – 3.000');document.getElementById('err4').classList.remove('show')"><div class="budget-range">USD 2.000 – 3.000</div></div>
+<div class="budget-card" onclick="selectBudget(this,'Más de USD 3.000');document.getElementById('err4').classList.remove('show')"><div class="budget-range">+USD 3.000</div></div>
     </div>
     <div class="error-msg" id="err4">⚠ Seleccioná un rango de presupuesto para continuar.</div>
     <div class="field-group">
@@ -615,6 +673,13 @@ function selectOption(el, key) {
   p.querySelectorAll('.option-card').forEach(c=>c.classList.remove('selected'));
   el.classList.add('selected');
   fd[key] = el.dataset.value;
+}
+function toggleTripType(el) {
+  el.classList.toggle('selected');
+  const v = el.dataset.value;
+  if(el.classList.contains('selected')){ if(!fd.tipo_viaje.includes(v)) fd.tipo_viaje.push(v); }
+  else fd.tipo_viaje = fd.tipo_viaje.filter(x=>x!==v);
+  document.getElementById('err3').classList.remove('show');
 }
 function toggleMulti(el, key) {
   el.classList.toggle('selected');
