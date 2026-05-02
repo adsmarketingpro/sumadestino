@@ -26,7 +26,13 @@
   .progress-wrap { position:fixed; top:0; left:0; right:0; height:3px; z-index:200; background:rgba(255,255,255,0.08); }
   .progress-bar { height:100%; background:var(--lime); transition:width .5s cubic-bezier(.4,0,.2,1); box-shadow:0 0 12px rgba(209,245,129,.6); }
 
-  header { position:fixed; top:0; left:0; right:0; z-index:100; padding:20px 40px; display:flex; align-items:center; justify-content:space-between; backdrop-filter:blur(8px); border-bottom:1px solid rgba(255,255,255,.06); }
+  /* HEADER TRANSPARENTE */
+  header {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    padding:20px 40px; display:flex; align-items:center; justify-content:space-between;
+    background: transparent;
+    border-bottom: none;
+  }
   .logo img { height:36px; filter:brightness(10); }
   .back-btn { display:flex; align-items:center; gap:8px; color:rgba(255,255,255,.5); text-decoration:none; font-size:.85rem; letter-spacing:.05em; transition:color .2s; }
   .back-btn:hover { color:var(--lime); }
@@ -46,6 +52,37 @@
   .step-title em { font-style:normal; color:var(--lime); }
   .step-subtitle { font-size:.92rem; color:rgba(255,255,255,.4); font-weight:300; margin-bottom:30px; line-height:1.5; }
 
+  /* CONTINENT CARDS CON IMAGEN */
+  .continent-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:11px; width:100%; margin-bottom:16px; }
+  .continent-card {
+    position:relative; border:1.5px solid rgba(255,255,255,.1); border-radius:14px;
+    overflow:hidden; cursor:pointer; transition:all .25s; aspect-ratio:3/2;
+    background:#0a1a0f;
+  }
+  .continent-card img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.55; transition:opacity .3s; }
+  .continent-card:hover img { opacity:.75; }
+  .continent-card.selected img { opacity:.8; }
+  .continent-card::after {
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(to top, rgba(5,15,7,.85) 0%, rgba(5,15,7,.2) 60%, transparent 100%);
+  }
+  .continent-card:hover { border-color:rgba(209,245,129,.5); transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  .continent-card.selected { border-color:var(--lime); box-shadow:0 0 0 2px var(--lime), 0 8px 24px rgba(209,245,129,.15); }
+  .continent-card-label {
+    position:absolute; bottom:0; left:0; right:0; z-index:2;
+    padding:10px 12px; text-align:center;
+  }
+  .continent-card-label .c-name { font-size:.88rem; font-weight:700; color:var(--white); display:block; }
+  .continent-card.selected .c-name { color:var(--lime); }
+  .continent-check {
+    position:absolute; top:8px; right:8px; z-index:3;
+    width:20px; height:20px; border-radius:50%;
+    background:var(--lime); color:var(--teal);
+    font-size:.7rem; font-weight:900;
+    display:none; align-items:center; justify-content:center;
+  }
+  .continent-card.selected .continent-check { display:flex; }
+
   /* DESTINATION CARDS */
   .dest-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:11px; width:100%; margin-bottom:16px; }
   .dest-card { position:relative; border:1.5px solid rgba(255,255,255,.08); border-radius:14px; padding:18px 12px; cursor:pointer; transition:all .25s; background:rgba(255,255,255,.03); display:flex; flex-direction:column; align-items:center; gap:6px; }
@@ -60,7 +97,6 @@
   /* OPTION CARDS */
   .options-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:11px; width:100%; margin-bottom:18px; }
   .options-grid.cols-2 { grid-template-columns:repeat(2,1fr); }
-  .options-grid.cols-4 { grid-template-columns:repeat(4,1fr); }
   .option-card { border:1.5px solid rgba(255,255,255,.1); border-radius:13px; padding:16px 12px; cursor:pointer; transition:all .25s; display:flex; flex-direction:column; align-items:center; gap:7px; background:rgba(255,255,255,.03); user-select:none; }
   .option-card:hover { border-color:rgba(209,245,129,.35); background:rgba(209,245,129,.04); transform:translateY(-2px); }
   .option-card.selected { border-color:var(--lime); background:rgba(209,245,129,.09); }
@@ -74,7 +110,12 @@
   .field-input { width:100%; background:rgba(255,255,255,.04); border:1.5px solid rgba(255,255,255,.1); border-radius:11px; padding:13px 17px; color:var(--white); font-family:'Codec Pro',sans-serif; font-size:.93rem; outline:none; transition:border-color .2s,background .2s; -webkit-appearance:none; }
   .field-input::placeholder { color:rgba(255,255,255,.18); }
   .field-input:focus { border-color:rgba(209,245,129,.45); background:rgba(209,245,129,.04); }
+  .field-input.error { border-color:rgba(255,80,80,.6); background:rgba(255,80,80,.04); }
   .fields-row { display:grid; grid-template-columns:1fr 1fr; gap:11px; width:100%; }
+
+  /* ERROR MSG */
+  .error-msg { color:rgba(255,120,120,.9); font-size:.78rem; margin-top:-8px; margin-bottom:10px; text-align:left; width:100%; display:none; }
+  .error-msg.show { display:block; }
 
   /* COUNTER */
   .counter-group { display:flex; align-items:center; justify-content:space-between; width:100%; padding:15px 20px; border:1.5px solid rgba(255,255,255,.08); border-radius:13px; background:rgba(255,255,255,.03); margin-bottom:10px; }
@@ -120,7 +161,8 @@
   .wa-btn { display:flex; align-items:center; gap:12px; background:#25D366; color:white; text-decoration:none; padding:15px 32px; border-radius:50px; font-weight:700; transition:transform .2s,box-shadow .2s; box-shadow:0 4px 18px rgba(37,211,102,.28); }
   .wa-btn:hover { transform:translateY(-2px); box-shadow:0 8px 26px rgba(37,211,102,.38); }
 
-  @media(max-width:600px) {
+  @media(max-width:700px) {
+    .continent-grid { grid-template-columns:repeat(2,1fr); }
     .dest-grid { grid-template-columns:repeat(2,1fr); }
     .options-grid { grid-template-columns:repeat(2,1fr); }
     .budget-options { grid-template-columns:1fr; }
@@ -145,49 +187,51 @@
 
 <main>
 
-  <!-- PASO 1 dinámico -->
+  <!-- PASO 1 -->
   <div class="step active" id="step1">
     <div class="step-label">Paso 1 de 5</div>
     <div class="continent-badge" id="continentBadge"></div>
     <h1 class="step-title" id="step1Title">¿A dónde querés<br><em>escaparte?</em></h1>
     <p class="step-subtitle" id="step1Subtitle">Elegí el continente o escribí tu destino soñado.</p>
     <div id="step1Content" style="width:100%;"></div>
-    <button class="next-btn" onclick="goToStep(2)">Siguiente →</button>
+    <div class="error-msg" id="err1">⚠ Seleccioná un destino o escribí uno para continuar.</div>
+    <button class="next-btn" onclick="validateAndGo(1)">Siguiente →</button>
   </div>
 
   <!-- PASO 2 -->
   <div class="step" id="step2">
     <div class="step-label">Paso 2 de 5</div>
     <h1 class="step-title">¿Cuándo y<br><em>desde dónde?</em></h1>
-    <p class="step-subtitle">Fechas aproximadas, no hace falta que sean exactas.</p>
+    <p class="step-subtitle">Completá todos los campos para continuar.</p>
     <div class="fields-row" style="margin-bottom:13px;">
       <div class="field-group" style="margin-bottom:0;">
-        <label>Fecha de salida estimada</label>
-        <input type="text" class="field-input" placeholder="Ej: Julio 2025" oninput="fd.fecha_salida=this.value">
+        <label>Fecha de salida estimada *</label>
+        <input type="text" class="field-input" id="f-fecha" placeholder="Ej: Julio 2025" oninput="fd.fecha_salida=this.value;clearErr(this)">
       </div>
       <div class="field-group" style="margin-bottom:0;">
-        <label>Duración aproximada</label>
-        <input type="text" class="field-input" placeholder="Ej: 10 días" oninput="fd.duracion=this.value">
+        <label>Duración aproximada *</label>
+        <input type="text" class="field-input" id="f-duracion" placeholder="Ej: 10 días" oninput="fd.duracion=this.value;clearErr(this)">
       </div>
     </div>
     <div class="field-group">
-      <label>Ciudad de salida</label>
-      <input type="text" class="field-input" placeholder="Ej: Córdoba, Buenos Aires..." oninput="fd.ciudad_salida=this.value">
+      <label>Ciudad de salida *</label>
+      <input type="text" class="field-input" id="f-ciudad" placeholder="Ej: Córdoba, Buenos Aires..." oninput="fd.ciudad_salida=this.value;clearErr(this)">
     </div>
     <div class="field-group">
-      <label>¿Tenés flexibilidad en las fechas?</label>
-      <div class="options-grid cols-2" style="margin-bottom:0;margin-top:7px;">
-        <div class="option-card" data-value="Sí, flexible" onclick="selectOption(this,'flexibilidad')" style="padding:13px;">
+      <label>¿Tenés flexibilidad en las fechas? *</label>
+      <div class="options-grid cols-2" style="margin-bottom:0;margin-top:7px;" id="flex-grid">
+        <div class="option-card" data-value="Sí, flexible" onclick="selectOption(this,'flexibilidad');document.getElementById('err2').classList.remove('show')" style="padding:13px;">
           <span class="label">✅ Sí, soy flexible</span>
         </div>
-        <div class="option-card" data-value="Fechas fijas" onclick="selectOption(this,'flexibilidad')" style="padding:13px;">
+        <div class="option-card" data-value="Fechas fijas" onclick="selectOption(this,'flexibilidad');document.getElementById('err2').classList.remove('show')" style="padding:13px;">
           <span class="label">📌 No, son fijas</span>
         </div>
       </div>
     </div>
+    <div class="error-msg" id="err2">⚠ Por favor completá todos los campos.</div>
     <div class="btn-row">
       <button class="next-btn btn-back" onclick="goToStep(1)">← Atrás</button>
-      <button class="next-btn" onclick="goToStep(3)">Siguiente →</button>
+      <button class="next-btn" onclick="validateAndGo(2)">Siguiente →</button>
     </div>
   </div>
 
@@ -195,7 +239,7 @@
   <div class="step" id="step3">
     <div class="step-label">Paso 3 de 5</div>
     <h1 class="step-title">¿Con quién<br><em>viajás?</em></h1>
-    <p class="step-subtitle">Contanos cómo es el grupo y qué tipo de experiencia buscás.</p>
+    <p class="step-subtitle">Seleccioná al menos un tipo de viaje para continuar.</p>
     <div style="width:100%;margin-bottom:18px;">
       <div class="counter-group">
         <div class="counter-info"><div class="counter-label">Adultos</div><div class="counter-sub">18 años o más</div></div>
@@ -215,19 +259,20 @@
       </div>
     </div>
     <div class="field-group">
-      <label>Tipo de viaje (podés elegir más de uno)</label>
+      <label>Tipo de viaje * (podés elegir más de uno)</label>
       <div class="options-grid" style="margin-top:7px;margin-bottom:0;">
-        <div class="option-card" data-value="Playa / Relax" onclick="toggleMulti(this,'tipo_viaje')"><span class="icon">🏖️</span><span class="label">Playa / Relax</span></div>
-        <div class="option-card" data-value="Aventura" onclick="toggleMulti(this,'tipo_viaje')"><span class="icon">🧗</span><span class="label">Aventura</span></div>
-        <div class="option-card" data-value="Cultural" onclick="toggleMulti(this,'tipo_viaje')"><span class="icon">🏛️</span><span class="label">Cultural</span></div>
-        <div class="option-card" data-value="Luna de miel" onclick="toggleMulti(this,'tipo_viaje')"><span class="icon">💍</span><span class="label">Luna de miel</span></div>
-        <div class="option-card" data-value="Familiar" onclick="toggleMulti(this,'tipo_viaje')"><span class="icon">👨‍👩‍👧</span><span class="label">Familiar</span></div>
-        <div class="option-card" data-value="All Inclusive" onclick="toggleMulti(this,'tipo_viaje')"><span class="icon">🍹</span><span class="label">All Inclusive</span></div>
+        <div class="option-card" data-value="Playa / Relax" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">🏖️</span><span class="label">Playa / Relax</span></div>
+        <div class="option-card" data-value="Aventura" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">🧗</span><span class="label">Aventura</span></div>
+        <div class="option-card" data-value="Cultural" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">🏛️</span><span class="label">Cultural</span></div>
+        <div class="option-card" data-value="Luna de miel" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">💍</span><span class="label">Luna de miel</span></div>
+        <div class="option-card" data-value="Familiar" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">👨‍👩‍👧</span><span class="label">Familiar</span></div>
+        <div class="option-card" data-value="All Inclusive" onclick="toggleMulti(this,'tipo_viaje');document.getElementById('err3').classList.remove('show')"><span class="icon">🍹</span><span class="label">All Inclusive</span></div>
       </div>
     </div>
+    <div class="error-msg" id="err3">⚠ Seleccioná al menos un tipo de viaje.</div>
     <div class="btn-row">
       <button class="next-btn btn-back" onclick="goToStep(2)">← Atrás</button>
-      <button class="next-btn" onclick="goToStep(4)">Siguiente →</button>
+      <button class="next-btn" onclick="validateAndGo(3)">Siguiente →</button>
     </div>
   </div>
 
@@ -236,11 +281,12 @@
     <div class="step-label">Paso 4 de 5</div>
     <h1 class="step-title">¿Cuál es tu<br><em>presupuesto?</em></h1>
     <p class="step-subtitle">Por persona, sin contar el vuelo si preferís cotizarlo aparte.</p>
-    <div class="budget-options">
-      <div class="budget-card" onclick="selectBudget(this,'USD 1.500 – 2.000')"><div class="budget-icon">💰</div><div class="budget-range">USD 1.500 – 2.000</div><div class="budget-desc">Económico</div></div>
-      <div class="budget-card" onclick="selectBudget(this,'USD 2.000 – 3.000')"><div class="budget-icon">💎</div><div class="budget-range">USD 2.000 – 3.000</div><div class="budget-desc">Intermedio</div></div>
-      <div class="budget-card" onclick="selectBudget(this,'Más de USD 3.000')"><div class="budget-icon">✨</div><div class="budget-range">+USD 3.000</div><div class="budget-desc">Premium</div></div>
+    <div class="budget-options" id="budget-grid">
+      <div class="budget-card" onclick="selectBudget(this,'USD 1.500 – 2.000');document.getElementById('err4').classList.remove('show')"><div class="budget-icon">💰</div><div class="budget-range">USD 1.500 – 2.000</div><div class="budget-desc">Económico</div></div>
+      <div class="budget-card" onclick="selectBudget(this,'USD 2.000 – 3.000');document.getElementById('err4').classList.remove('show')"><div class="budget-icon">💎</div><div class="budget-range">USD 2.000 – 3.000</div><div class="budget-desc">Intermedio</div></div>
+      <div class="budget-card" onclick="selectBudget(this,'Más de USD 3.000');document.getElementById('err4').classList.remove('show')"><div class="budget-icon">✨</div><div class="budget-range">+USD 3.000</div><div class="budget-desc">Premium</div></div>
     </div>
+    <div class="error-msg" id="err4">⚠ Seleccioná un rango de presupuesto para continuar.</div>
     <div class="field-group">
       <label>¿Qué querés que incluya la cotización?</label>
       <div class="options-grid cols-2" style="margin-top:7px;margin-bottom:0;">
@@ -252,7 +298,7 @@
     </div>
     <div class="btn-row">
       <button class="next-btn btn-back" onclick="goToStep(3)">← Atrás</button>
-      <button class="next-btn" onclick="goToStep(5)">Siguiente →</button>
+      <button class="next-btn" onclick="validateAndGo(4)">Siguiente →</button>
     </div>
   </div>
 
@@ -262,15 +308,16 @@
     <h1 class="step-title">¿A quién le<br><em>mandamos la propuesta?</em></h1>
     <p class="step-subtitle">Te la enviamos por WhatsApp en menos de 24 horas.</p>
     <div class="fields-row" style="margin-bottom:13px;">
-      <div class="field-group" style="margin-bottom:0;"><label>Nombre</label><input type="text" class="field-input" placeholder="Tu nombre" oninput="fd.nombre=this.value"></div>
-      <div class="field-group" style="margin-bottom:0;"><label>Apellido</label><input type="text" class="field-input" placeholder="Tu apellido" oninput="fd.apellido=this.value"></div>
+      <div class="field-group" style="margin-bottom:0;"><label>Nombre *</label><input type="text" class="field-input" id="f-nombre" placeholder="Tu nombre" oninput="fd.nombre=this.value;clearErr(this)"></div>
+      <div class="field-group" style="margin-bottom:0;"><label>Apellido *</label><input type="text" class="field-input" id="f-apellido" placeholder="Tu apellido" oninput="fd.apellido=this.value;clearErr(this)"></div>
     </div>
-    <div class="field-group"><label>Celular (con código de área)</label><input type="tel" class="field-input" placeholder="Ej: 351 123 4567" oninput="fd.celular=this.value"></div>
-    <div class="field-group"><label>Email</label><input type="email" class="field-input" placeholder="tu@email.com" oninput="fd.email=this.value"></div>
+    <div class="field-group"><label>Celular (con código de área) *</label><input type="tel" class="field-input" id="f-celular" placeholder="Ej: 351 123 4567" oninput="fd.celular=this.value;clearErr(this)"></div>
+    <div class="field-group"><label>Email *</label><input type="email" class="field-input" id="f-email" placeholder="tu@email.com" oninput="fd.email=this.value;clearErr(this)"></div>
     <div class="field-group"><label>¿Algo más que quieras contarnos?</label><textarea class="field-input" rows="3" placeholder="Preferencias, alergias, ocasión especial..." style="resize:none;line-height:1.5;" oninput="fd.detalles=this.value"></textarea></div>
+    <div class="error-msg" id="err5">⚠ Completá nombre, apellido, celular y email para continuar.</div>
     <div class="btn-row">
       <button class="next-btn btn-back" onclick="goToStep(4)">← Atrás</button>
-      <button class="next-btn btn-submit" onclick="submitForm()">✈ Quiero mi propuesta</button>
+      <button class="next-btn btn-submit" onclick="validateAndGo(5)">✈ Quiero mi propuesta</button>
     </div>
   </div>
 
@@ -296,6 +343,17 @@
 // Estrellas
 const starsEl = document.getElementById('stars');
 for(let i=0;i<100;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2+.5;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--op:${Math.random()*.45+.1};--dur:${Math.random()*3+2}s;`;starsEl.appendChild(s);}
+
+// Datos continentes con imágenes
+const CONTINENTS_GENERIC = [
+  { name:'Europa',            img:'https://sumadestino.com/Imagenes/Europa.jpg' },
+  { name:'América del Sur',   img:'https://sumadestino.com/Imagenes/SudAmerica.jpg' },
+  { name:'Asia',              img:'https://sumadestino.com/Imagenes/Asia.jpg' },
+  { name:'Caribe',            img:'https://sumadestino.com/Imagenes/Caribe.png' },
+  { name:'África',            img:'https://sumadestino.com/Imagenes/Africa.png' },
+  { name:'América del Norte', img:'https://sumadestino.com/Imagenes/NorteAmerica.png' },
+  { name:'Oceanía',           img:'https://sumadestino.com/Imagenes/Oceania.png' },
+];
 
 // Datos por continente
 const C = {
@@ -380,6 +438,19 @@ const C = {
       {icon:'✨',name:'Crucero por el Caribe',tag:'Tour en barco',tour:true},
     ]
   },
+  'Caribe': {
+    emoji:'🏖️', titulo:'¿Qué destino del<br><em>Caribe</em> te llama?', sub:'Sol, playa y aventura tropical.',
+    destinos:[
+      {icon:'🏝️',name:'Rep. Dominicana',tag:'Punta Cana, Santo Domingo'},
+      {icon:'🎶',name:'Cuba',tag:'La Habana, Trinidad, Varadero'},
+      {icon:'🌺',name:'Jamaica',tag:'Montego Bay, Negril'},
+      {icon:'🐠',name:'Aruba / Curaçao',tag:'Playas, snorkel, relax'},
+      {icon:'🍹',name:'Bahamas',tag:'Nassau, Exumas'},
+      {icon:'🦜',name:'Costa Rica',tag:'Arenal, Guanacaste'},
+      {icon:'🌿',name:'Panamá',tag:'Ciudad de Panamá, Bocas del Toro'},
+      {icon:'✨',name:'Crucero por el Caribe',tag:'Tour en barco',tour:true},
+    ]
+  },
   'Oceanía': {
     emoji:'🦘', titulo:'¿Qué destino de<br><em>Oceanía</em> te llama?', sub:'Aventura y naturaleza al otro lado del mundo.',
     destinos:[
@@ -401,10 +472,8 @@ const fd = {
   nombre:'', apellido:'', celular:'', email:'', detalles:''
 };
 
-// Leer parámetro
 const continenteParam = new URLSearchParams(window.location.search).get('continente') || '';
 
-// Construir paso 1
 function buildStep1() {
   const data = C[continenteParam];
   const badge = document.getElementById('continentBadge');
@@ -430,27 +499,37 @@ function buildStep1() {
     html += '</div>';
     html += `<div class="field-group" style="margin-top:4px;">
       <label>O escribí algo más específico</label>
-      <input type="text" class="field-input" placeholder="Ej: zona rural, playa tranquila..." oninput="fd.destino_extra=this.value">
+      <input type="text" class="field-input" id="f-destino-extra" placeholder="Ej: zona rural, playa tranquila..." oninput="fd.destino_extra=this.value">
     </div>`;
     content.innerHTML = html;
   } else {
-    // Genérico
-    content.innerHTML = `
-      <div class="dest-grid">
-        <div class="dest-card" data-value="Europa" onclick="selectDest(this)"><span class="dest-icon">🏰</span><span class="dest-name">Europa</span></div>
-        <div class="dest-card" data-value="América del Sur" onclick="selectDest(this)"><span class="dest-icon">🌎</span><span class="dest-name">América del Sur</span></div>
-        <div class="dest-card" data-value="Asia" onclick="selectDest(this)"><span class="dest-icon">🏯</span><span class="dest-name">Asia</span></div>
-        <div class="dest-card" data-value="Caribe" onclick="selectDest(this)"><span class="dest-icon">🏖️</span><span class="dest-name">Caribe</span></div>
-        <div class="dest-card" data-value="África" onclick="selectDest(this)"><span class="dest-icon">🦁</span><span class="dest-name">África</span></div>
-        <div class="dest-card" data-value="América del Norte" onclick="selectDest(this)"><span class="dest-icon">🗽</span><span class="dest-name">América del Norte</span></div>
-      </div>
-      <div class="field-group" style="margin-top:4px;">
-        <label>O escribí el destino específico</label>
-        <input type="text" class="field-input" placeholder="Ej: Japón, Marruecos, Patagonia..." oninput="fd.destino=this.value">
+    // Genérico con imágenes
+    let html = '<div class="continent-grid">';
+    CONTINENTS_GENERIC.forEach(c => {
+      html += `<div class="continent-card" data-value="${c.name}" onclick="selectContinent(this)">
+        <img src="${c.img}" alt="${c.name}" loading="lazy">
+        <div class="continent-card-label">
+          <span class="c-name">${c.name}</span>
+        </div>
+        <span class="continent-check">✓</span>
       </div>`;
+    });
+    html += '</div>';
+    html += `<div class="field-group" style="margin-top:4px;">
+      <label>O escribí el destino específico</label>
+      <input type="text" class="field-input" id="f-destino-texto" placeholder="Ej: Japón, Marruecos, Patagonia..." oninput="fd.destino=this.value;document.getElementById('err1').classList.remove('show')">
+    </div>`;
+    content.innerHTML = html;
   }
 }
 buildStep1();
+
+function selectContinent(el) {
+  document.querySelectorAll('.continent-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  fd.destino = el.dataset.value;
+  document.getElementById('err1').classList.remove('show');
+}
 
 // Navigation
 let currentStep = 1;
@@ -469,13 +548,67 @@ function goToStep(n) {
       if(i+1===n) d.classList.add('active');
       else if(i+1<n) d.classList.add('done');
     });
+    window.scrollTo({top:0, behavior:'smooth'});
   }, 260);
+}
+
+// Validación por paso
+function validateAndGo(step) {
+  if (step === 1) {
+    const hasSelected = fd.destino || fd.continente;
+    const textInput = document.getElementById('f-destino-texto') || document.getElementById('f-destino-extra');
+    const hasText = textInput && textInput.value.trim();
+    if (!hasSelected && !hasText) {
+      document.getElementById('err1').classList.add('show');
+      return;
+    }
+    if (hasText && !hasSelected) fd.destino = textInput.value.trim();
+    goToStep(2);
+  }
+  else if (step === 2) {
+    let ok = true;
+    ['f-fecha','f-duracion','f-ciudad'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) { el.classList.add('error'); ok = false; }
+    });
+    if (!fd.flexibilidad) ok = false;
+    if (!ok) { document.getElementById('err2').classList.add('show'); return; }
+    goToStep(3);
+  }
+  else if (step === 3) {
+    if (!fd.tipo_viaje.length) {
+      document.getElementById('err3').classList.add('show');
+      return;
+    }
+    goToStep(4);
+  }
+  else if (step === 4) {
+    if (!fd.presupuesto) {
+      document.getElementById('err4').classList.add('show');
+      return;
+    }
+    goToStep(5);
+  }
+  else if (step === 5) {
+    let ok = true;
+    [['f-nombre','nombre'],['f-apellido','apellido'],['f-celular','celular'],['f-email','email']].forEach(([id,key]) => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) { el.classList.add('error'); ok = false; }
+    });
+    if (!ok) { document.getElementById('err5').classList.add('show'); return; }
+    submitForm();
+  }
+}
+
+function clearErr(el) {
+  el.classList.remove('error');
 }
 
 function selectDest(el) {
   el.closest('.dest-grid').querySelectorAll('.dest-card').forEach(c=>c.classList.remove('selected'));
   el.classList.add('selected');
   fd.destino = el.dataset.value;
+  document.getElementById('err1').classList.remove('show');
 }
 function selectOption(el, key) {
   const p = el.closest('.options-grid')||el.parentElement;
@@ -500,7 +633,6 @@ function updateCounter(key, delta) {
 }
 
 function submitForm() {
-  if (!fd.nombre || !fd.celular) { alert('Por favor completá tu nombre y celular.'); return; }
   const destino = [fd.continente, fd.destino].filter(Boolean).join(' → ') || 'No especificado';
   const tipos = fd.tipo_viaje.length ? fd.tipo_viaje.join(', ') : 'No especificado';
   const msg = `¡Hola! Completé el formulario de SumaDestino y quiero recibir una propuesta de viaje.
