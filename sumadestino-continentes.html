@@ -547,7 +547,14 @@ function buildStep1() {
     sub.textContent = data.sub;
     let html = '<div class="dest-grid">';
     data.destinos.forEach(d => {
-      html += `<div class="dest-card" data-value="${d.name}" onclick="selectDest(this)">
+      html += d.img
+  ? `<div class="triptype-card" data-value="${d.name}" onclick="selectDest(this)">
+        ${d.tour ? '<span class="tour-badge">TOUR</span>' : ''}
+        <img src="${d.img}" alt="${d.name}" loading="lazy">
+        <div class="triptype-label"><span class="t-name">${d.name}</span></div>
+        <span class="triptype-check">✓</span>
+      </div>`
+  : `<div class="dest-card" data-value="${d.name}" onclick="selectDest(this)">
         ${d.tour ? '<span class="tour-badge">TOUR</span>' : ''}
         <span class="dest-icon">${d.icon}</span>
         <span class="dest-name">${d.name}</span>
