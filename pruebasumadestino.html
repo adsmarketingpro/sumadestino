@@ -212,10 +212,14 @@
   .review-text { font-size: 0.9rem; color: #333; line-height: 1.6; }
 
   /* CARRUSEL MOBILE */
-  .reviews-carousel { display: none; position: relative; z-index: 1; max-width: 480px; margin: 0 auto; }
+  .reviews-carousel { display: none; position: relative; z-index: 1; max-width: 400px; margin: 0 auto; }
   .carousel-track { overflow: hidden; border-radius: 16px; }
-  .carousel-slides { display: flex; transition: transform 0.4s ease; }
-  .carousel-slides .review-card { min-width: 100%; flex-shrink: 0; }
+  .carousel-slides { display: flex; transition: transform 0.4s ease; align-items: stretch; }
+  .carousel-slides .review-card {
+    min-width: 100%; flex-shrink: 0;
+    opacity: 1 !important; transform: none !important;
+    margin: 0; border-radius: 16px;
+  }
   .carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
   .carousel-dot {
     width: 8px; height: 8px; border-radius: 50%;
@@ -875,13 +879,13 @@
   // Auto-advance carrusel
   setInterval(() => { if (window.innerWidth <= 968) carouselNext(); }, 4000);
 
-  // Scroll reveal
+  // Scroll reveal — excluye las cards del carrusel
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; }
     });
   }, { threshold: 0.1 });
-  document.querySelectorAll('.review-card, .social-card, .faq-item').forEach(el => {
+  document.querySelectorAll('.reviews-grid .review-card, .social-card, .faq-item').forEach(el => {
     el.style.opacity = '0'; el.style.transform = 'translateY(20px)';
     el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
     observer.observe(el);
