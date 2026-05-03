@@ -152,7 +152,8 @@
     background: var(--accent); padding: 48px 40px;
     display: flex; align-items: center; justify-content: center; gap: 32px;
   }
-  .cta-band-text { font-family: 'Codec Pro', serif; font-size: 2rem; color: var(--accent-text); font-weight: 400; }
+  .cta-band-text { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--accent-text); font-weight: 700; }
+  .cta-break { display: inline; }
   .cta-main-btn {
     display: flex; align-items: center; gap: 12px;
     background: var(--accent-text); color: #ffffff; border: none;
@@ -436,12 +437,14 @@
 
     /* CTA Band */
     .cta-band { flex-direction: column; text-align: center; padding: 40px 20px; gap: 20px; }
-    .cta-band-text { font-size: 1.5rem; }
+    .cta-band-text { font-size: 1.6rem; }
+    .cta-band-text .cta-break { display: block; }
 
     /* Reviews: ocultar grid, mostrar carrusel */
     .reviews-section { padding: 60px 20px 180px; }
     .reviews-grid { display: none; }
     .reviews-carousel { display: block; }
+    .reviews-title { font-size: 1.1rem; white-space: nowrap; }
 
     /* Globe mobile */
     .globe-section { min-height: auto; margin-top: -80px; }
@@ -551,7 +554,7 @@
 
 <!-- CTA BAND -->
 <section class="cta-band">
-  <p class="cta-band-text">Tu próxima aventura <strong>empieza acá</strong></p>
+  <p class="cta-band-text">Tu próxima aventura <span class="cta-break"><strong>empieza acá</strong></span></p>
   <a href="https://sumadestino.com/Destinos/Destinos.html" class="cta-main-btn">
     <img src="https://raw.githubusercontent.com/adsmarketingpro/sumadestino/2d3e6808767d43f5ce49472a049bf25f81f48023/AvionSVGboton.svg" style="height:16px;width:auto;"> Empezar
   </a>
