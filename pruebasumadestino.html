@@ -152,7 +152,7 @@
     background: var(--accent); padding: 48px 40px;
     display: flex; align-items: center; justify-content: center; gap: 32px;
   }
-  .cta-band-text { font-family: 'Codec Pro', serif; font-size: 2rem; color: var(--accent-text); font-weight: 400; text-transform: none;}
+  .cta-band-text { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--accent-text); font-weight: 700; }
   .cta-break { display: inline; }
   .cta-main-btn {
     display: flex; align-items: center; gap: 12px;
@@ -456,22 +456,23 @@
     .globe-text-content { max-width: 100%; }
     .globe-title { font-size: clamp(2rem, 8vw, 2.8rem); }
     .title-destination-row { justify-content: center; }
+    .title-destination-row img { display: none; }
     .globe-desc { max-width: 100%; font-size: 0.95rem; }
     .globe-3d-wrapper {
       height: 55vw; min-height: 280px; max-height: 380px;
       transform: translateX(0) !important;
       margin-top: 0;
     }
-    .globe-hint { right: 16px; bottom: 8px; font-size: 0.6rem; }
+    .globe-hint { right: 0; left: 0; text-align: center; bottom: 8px; font-size: 0.6rem; }
     .globe-mobile-cta {
       display: flex; justify-content: center; margin-top: 24px;
     }
     .globe-mobile-cta a {
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: center; gap: 8px;
       background: var(--lime); color: var(--teal);
-      padding: 14px 32px; border-radius: 50px;
+      padding: 10px 24px; border-radius: 50px;
       font-family: 'Codec Pro', sans-serif; font-weight: 700;
-      font-size: 0.9rem; text-decoration: none; text-transform: uppercase;
+      font-size: 0.8rem; text-decoration: none; text-transform: uppercase;
       letter-spacing: 0.04em; box-shadow: 0 4px 20px rgba(209,245,129,0.25);
     }
 
